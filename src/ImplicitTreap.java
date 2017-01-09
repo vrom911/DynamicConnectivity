@@ -1,124 +1,173 @@
-public class ImplicitTreap<T extends Comparable> {
+import java.util.List;
+import java.util.Random;
 
-    public T y;
-    public ImplicitTreap left;
-    public ImplicitTreap right;
-    public int size;
+public class ImplicitTreap {
 
-    public ImplicitTreap(T y){
+    private long y;
+    private ImplicitTreap left;
+    private ImplicitTreap right;
+    private ImplicitTreap parent;
+    private int size;
+    private Vertex vertex;
+
+    public  ImplicitTreap() {
+        this(new Random().nextInt());
+    }
+
+    public ImplicitTreap(long y){
         this.y = y;
         this.left = null;
         this.right = null;
-        this.size = 1;
-    }
-
-    public ImplicitTreap(T y, ImplicitTreap left, ImplicitTreap right){
-        this.y = y;
-        this.left = left;
-        this.right = right;
-        this.size = 1;
+        this.parent = null;
         this.updateSize();
     }
 
-    public int size(ImplicitTreap t) {
+    public ImplicitTreap(long y, ImplicitTreap left, ImplicitTreap right) {
+        this(y, left, right, null);
+    }
+
+    private ImplicitTreap(long y, ImplicitTreap left, ImplicitTreap right, ImplicitTreap parent) {
+        this.y = y;
+        this.left = left;
+        this.right = right;
+        this.parent = parent;
+        if (left != null) this.left.parent = this;
+        if (right != null) this.right.parent = this;
+        this.updateSize();
+    }
+
+
+    public static int size(ImplicitTreap t) {
         return t == null ? 0 : t.size;
     }
 
-    public void updateSize() {
-
-        size = size(left) + size(right) + 1;
+    private void updateSize() {
+        this.size = size(left) + size(right) + 1;
     }
 
-    public ImplicitTreap<T> merge(ImplicitTreap<T> l, ImplicitTreap<T> r) {
+    public ImplicitTreap merge(ImplicitTreap l, ImplicitTreap r) {
+        if (l == null) return r;
+        if (r == null) return l;
+
         ImplicitTreap result;
-
-        if (l == null) {
-            return r;
-        }
-        if (r == null) {
-            return l;
-        }
-
-        if (l.y.compareTo(r.y) < 0) {
-            result = new ImplicitTreap(r.y, merge(l, r.left), r.right);
+        if (l.y < r.y) {
+            result = new ImplicitTreap(r.y, merge(l, r.left), r.right, r.parent);
         } else {
-            result = new ImplicitTreap(l.y, l.left, merge(l.right, r));
+            result = new ImplicitTreap(l.y, l.left, merge(l.right, r), l.parent);
         }
-        result.updateSize();
         return result;
     }
 
-    public ImplicitTreap[] split(ImplicitTreap t, int k) {
-        ImplicitTreap[] result = new ImplicitTreap[] {null, null};
+    public static ImplicitTreapPair split(ImplicitTreap t, int k) {
+        ImplicitTreapPair result = new ImplicitTreapPair(null, null);
         if (t == null) {
-            return  result;
+            return result;
         }
         int ind = size(t.left) + 1;
         if (ind <= k) {
             result = split(t.right, k - ind);
-            t.right = result[0];
+            t.right = result.getFirst();
+            if (t.right != null) t.right.setParent(t);
+            t.setParent(null);
             t.updateSize();
-            result[0] = t;
+            result.setFirst(t);
             return result;
-        }
-        else {
+        } else {
             result = split(t.left, k);
-            t.left = result[1];
+            t.left = result.getSecond();
+            if (t.left != null) t.left.setParent(t);
+            t.setParent(null);
             t.updateSize();
-            result[1] = t;
+            result.setSecond(t);
+
             return result;
         }
     }
 
-    public ImplicitTreap add(int k) {
-        ImplicitTreap toAdd = new ImplicitTreap(k);
-        ImplicitTreap[] splitRes = split(this, k);
+    public static ImplicitTreapPair split(ImplicitTreap node) {
+        return split(getRoot(node), findIndex(node));
+    }
 
-        return merge(merge(splitRes[0], toAdd), splitRes[1]);
+    private static int findIndex(ImplicitTreap node) {
+        int result = size(node.left) + 1;
+        while (!isRoot(node)) {
+            if (node.parent.right == node) {
+                result += size(node.parent.left) + 1;
+            }
+            node = node.parent;
+        }
+        System.out.println(result);
+        return result;
+    }
+
+    private static boolean isRoot(ImplicitTreap node) {
+        return node.parent == null;
+    }
+
+    private static ImplicitTreap getRoot(ImplicitTreap node) {
+        return (isRoot(node)) ? node : getRoot(node.parent);
+    }
+
+    public ImplicitTreap add(int k, long y) {
+        ImplicitTreap toAdd = new ImplicitTreap(y);
+        ImplicitTreapPair splitRes = split(this, k);
+        return merge(merge(splitRes.getFirst(), toAdd), splitRes.getSecond());
     }
 
     public ImplicitTreap remove(int k) {
-        ImplicitTreap[] splitRes = split(this, k);
-        return merge(splitRes[0], split( splitRes[1], 1)[1]);
+        ImplicitTreapPair splitRes = split(this, k);
+        return merge(splitRes.getFirst(), split(splitRes.getSecond(), 1).getSecond());
     }
 
     public static void inOrderPrint(ImplicitTreap t) {
-        if (t == null)
-            return;
-        if (t.left != null) {
-            inOrderPrint(t.left);
-        }
-
+        if (t == null) return;
+        inOrderPrint(t.left);
         System.out.println(t);
-        if (t.right != null) {
-            inOrderPrint(t.right);
-        }
+        inOrderPrint(t.right);
     }
 
-    public void update(int k, T y) {
-        int ind = size(left) + 1;
-        if (ind == k) {
-            this.y = y;
-        } else if (ind < k) {
-            this.right.update(k - ind, y);
-        } else {
-            this.left.update(k, y);
+    public static ImplicitTreap makeFromArray(List<Vertex> list) {
+//        ImplicitTreap t = new ImplicitTreap(list.get(0));
+        for (int i = 1; i < list.size(); i++) {
+//            t.add(i, list.get(i));
         }
+        return null;
     }
 
-    public void clear() {
-        this.y = null;
-        this.left = null;
-        this.right = null;
-        this.size = 0;
+    public long getY() {
+        return y;
+    }
+
+    public void setY(long y) {
+        this.y = y;
+    }
+
+    public ImplicitTreap getLeft() {
+        return left;
+    }
+
+    public void setLeft(ImplicitTreap left) {
+        this.left = left;
+    }
+
+    public ImplicitTreap getRight() {
+        return right;
+    }
+
+    public void setRight(ImplicitTreap right) {
+        this.right = right;
+    }
+
+    public ImplicitTreap getParent() {
+        return parent;
+    }
+
+    public void setParent(ImplicitTreap parent) {
+        this.parent = parent;
     }
 
     @Override
     public String toString() {
-        return "Node {" +
-                "y = " + y +
-                ", size = " + size +
-                '}';
+        return "{ y = " + y + ", size = " + size + " " + parent + '}';
     }
-
 }
