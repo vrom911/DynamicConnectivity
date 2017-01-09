@@ -1,3 +1,7 @@
+import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
+
+import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.inOrderPrint;
+
 public class Main {
 
     private static ImplicitTreap testNode() {
@@ -10,31 +14,34 @@ public class Main {
         R1 = new ImplicitTreap(3);
         testTreap1 = new ImplicitTreap(9, L1, R1);
 
-        ImplicitTreap.inOrderPrint(testTreap);
+        inOrderPrint(testTreap);
         System.out.println("---");
-        ImplicitTreap.inOrderPrint(testTreap1);
+        inOrderPrint(testTreap1);
         System.out.println("---");
 
-        return testTreap.merge(testTreap, testTreap1);
+        return ImplicitTreap.merge(testTreap, testTreap1);
     }
 
     public static void main(String[] args) {
+        ImplicitTreap t = new ImplicitTreap(100);
+        ImplicitTreap t1 = new ImplicitTreap(99);
+        inOrderPrint(ImplicitTreap.merge(t, t1));
         ImplicitTreap node1 = testNode();
 
         System.out.println("NODE 1");
-        ImplicitTreap.inOrderPrint(node1);
+        inOrderPrint(node1);
         System.out.println(";;");
-        ImplicitTreap.inOrderPrint(ImplicitTreap.split(node1, 5).getFirst());
+        inOrderPrint(ImplicitTreap.split(node1, 5).getFirst());
 
         ImplicitTreap node2 = testNode();
         System.out.println("NODE 2");
-        ImplicitTreap.inOrderPrint(ImplicitTreap.split(node2.getRight().getLeft()).getFirst());
-////        ImplicitTreap.inOrderPrint(testTreap.add(8));
-//        ImplicitTreap.inOrderPrint(testTreap.add(8, 14).remove(2));
+        inOrderPrint(ImplicitTreap.split(node2.getRight().getLeft()).getFirst());
+////        ru.ifmo.ads.romashkina.treap.ImplicitTreap.inOrderPrint(testTreap.add(8));
+//        ru.ifmo.ads.romashkina.treap.ImplicitTreap.inOrderPrint(testTreap.add(8, 14).remove(2));
 
-//        Graph et = GraphUtility.readGraph("graphTest.txt");
+//        ru.ifmo.ads.romashkina.graph.Graph et = ru.ifmo.ads.romashkina.graph.GraphUtility.readGraph("graphTest.txt");
 //        System.out.println(et);
-//        EulerTourTree etTree = new EulerTourTree(et);
+//        ru.ifmo.ads.romashkina.euler.EulerTourTree etTree = new ru.ifmo.ads.romashkina.euler.EulerTourTree(et);
 //        System.out.println(etTree);
     }
 }
