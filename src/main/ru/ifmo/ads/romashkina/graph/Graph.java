@@ -1,3 +1,5 @@
+package ru.ifmo.ads.romashkina.graph;
+
 import java.util.List;
 import java.util.Random;
 
@@ -23,6 +25,6 @@ public class Graph {
 
     @Override
     public String toString() {
-        return "Graph{ " + "vertex = " + vertex + '}';
+        return "ru.ifmo.ads.romashkina.graph.Graph{ " + "vertex = " + vertex + '}';
     }
 }

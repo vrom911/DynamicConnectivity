@@ -1,3 +1,5 @@
+package ru.ifmo.ads.romashkina.treap;
+
 public class ImplicitTreapPair {
     public ImplicitTreap first;
     public ImplicitTreap second;

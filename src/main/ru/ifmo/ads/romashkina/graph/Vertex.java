@@ -1,3 +1,7 @@
+package ru.ifmo.ads.romashkina.graph;
+
+import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +64,7 @@ public class Vertex implements Comparable {
 
     @Override
     public String toString() {
-        return "Vertex{ " + label + ", num: " + number +
+        return "ru.ifmo.ads.romashkina.graph.Vertex{ " + label + ", num: " + number +
                 ", edges=" + edges +
                 " }\n";
     }

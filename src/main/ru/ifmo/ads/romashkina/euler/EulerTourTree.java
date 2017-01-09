@@ -1,3 +1,8 @@
+package ru.ifmo.ads.romashkina.euler;
+
+import ru.ifmo.ads.romashkina.graph.*;
+import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
+
 import java.util.ArrayList;
 import java.util.List;
 

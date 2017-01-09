@@ -1,3 +1,5 @@
+package ru.ifmo.ads.romashkina.treap;
+
 public class Treap<T> {
 
     public T x;

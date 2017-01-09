@@ -1,3 +1,7 @@
+package ru.ifmo.ads.romashkina.treap;
+
+import ru.ifmo.ads.romashkina.graph.Vertex;
+
 import java.util.List;
 import java.util.Random;
 
@@ -45,7 +49,7 @@ public class ImplicitTreap {
         this.size = size(left) + size(right) + 1;
     }
 
-    public ImplicitTreap merge(ImplicitTreap l, ImplicitTreap r) {
+    public static ImplicitTreap merge(ImplicitTreap l, ImplicitTreap r) {
         if (l == null) return r;
         if (r == null) return l;
 
@@ -127,7 +131,7 @@ public class ImplicitTreap {
     }
 
     public static ImplicitTreap makeFromArray(List<Vertex> list) {
-//        ImplicitTreap t = new ImplicitTreap(list.get(0));
+//        ru.ifmo.ads.romashkina.treap.ImplicitTreap t = new ru.ifmo.ads.romashkina.treap.ImplicitTreap(list.get(0));
         for (int i = 1; i < list.size(); i++) {
 //            t.add(i, list.get(i));
         }

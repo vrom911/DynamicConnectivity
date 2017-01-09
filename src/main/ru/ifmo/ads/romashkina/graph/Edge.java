@@ -1,3 +1,5 @@
+package ru.ifmo.ads.romashkina.graph;
+
 public class Edge {
     private Vertex from;
     private Vertex to;
