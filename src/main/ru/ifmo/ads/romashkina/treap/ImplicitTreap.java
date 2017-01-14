@@ -1,37 +1,43 @@
 package ru.ifmo.ads.romashkina.treap;
 
-import ru.ifmo.ads.romashkina.graph.Vertex;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ImplicitTreap {
-
+public class ImplicitTreap<T> {
     private long y;
-    private ImplicitTreap left;
-    private ImplicitTreap right;
-    private ImplicitTreap parent;
+    private ImplicitTreap<T> left;
+    private ImplicitTreap<T> right;
+    private ImplicitTreap<T> parent;
     private int size;
-    private Vertex vertex;
+    private T value;
 
     public  ImplicitTreap() {
-        this(new Random().nextInt());
+        this(new Random().nextLong());
+    }
+
+    public  ImplicitTreap(T value) {
+        this(new Random().nextLong());
+        this.value = value;
+    }
+
+    public  ImplicitTreap(long y, T value) {
+        this(y);
+        this.value = value;
     }
 
     public ImplicitTreap(long y){
         this.y = y;
+        this.value = null;
         this.left = null;
         this.right = null;
         this.parent = null;
         this.updateSize();
     }
 
-    public ImplicitTreap(long y, ImplicitTreap left, ImplicitTreap right) {
-        this(y, left, right, null);
-    }
-
-    private ImplicitTreap(long y, ImplicitTreap left, ImplicitTreap right, ImplicitTreap parent) {
+    private ImplicitTreap(long y, T value, ImplicitTreap<T> left, ImplicitTreap<T> right, ImplicitTreap<T> parent) {
         this.y = y;
+        this.value = value;
         this.left = left;
         this.right = right;
         this.parent = parent;
@@ -41,7 +47,7 @@ public class ImplicitTreap {
     }
 
 
-    public static int size(ImplicitTreap t) {
+    public static <E> int size(ImplicitTreap<E> t) {
         return t == null ? 0 : t.size;
     }
 
@@ -49,21 +55,21 @@ public class ImplicitTreap {
         this.size = size(left) + size(right) + 1;
     }
 
-    public static ImplicitTreap merge(ImplicitTreap l, ImplicitTreap r) {
+    public static <E> ImplicitTreap<E> merge(ImplicitTreap<E> l, ImplicitTreap<E> r) {
         if (l == null) return r;
         if (r == null) return l;
 
-        ImplicitTreap result;
+        ImplicitTreap<E> result;
         if (l.y < r.y) {
-            result = new ImplicitTreap(r.y, merge(l, r.left), r.right, r.parent);
+            result = new ImplicitTreap<>(r.y, r.value, merge(l, r.left), r.right, r.parent);
         } else {
-            result = new ImplicitTreap(l.y, l.left, merge(l.right, r), l.parent);
+            result = new ImplicitTreap<>(l.y, l.value, l.left, merge(l.right, r), l.parent);
         }
         return result;
     }
 
-    public static ImplicitTreapPair split(ImplicitTreap t, int k) {
-        ImplicitTreapPair result = new ImplicitTreapPair(null, null);
+    public static <E> ImplicitTreapPair<E> split(ImplicitTreap<E> t, int k) {
+        ImplicitTreapPair<E> result = new ImplicitTreapPair<>(null, null);
         if (t == null) {
             return result;
         }
@@ -88,11 +94,12 @@ public class ImplicitTreap {
         }
     }
 
-    public static ImplicitTreapPair split(ImplicitTreap node) {
+    public static <E> ImplicitTreapPair<E> split(ImplicitTreap<E> node) {
         return split(getRoot(node), findIndex(node));
     }
 
-    private static int findIndex(ImplicitTreap node) {
+    public static <E> int findIndex(ImplicitTreap<E> node) {
+        if (node == null) return 0;
         int result = size(node.left) + 1;
         while (!isRoot(node)) {
             if (node.parent.right == node) {
@@ -100,42 +107,73 @@ public class ImplicitTreap {
             }
             node = node.parent;
         }
-        System.out.println(result);
         return result;
     }
 
-    private static boolean isRoot(ImplicitTreap node) {
-        return node.parent == null;
+    private static <E> boolean isRoot(ImplicitTreap<E> node) {
+        return (node == null) || node.parent == null;
     }
 
-    private static ImplicitTreap getRoot(ImplicitTreap node) {
+    private static <E> ImplicitTreap<E> getRoot(ImplicitTreap<E> node) {
         return (isRoot(node)) ? node : getRoot(node.parent);
     }
 
-    public ImplicitTreap add(int k, long y) {
-        ImplicitTreap toAdd = new ImplicitTreap(y);
-        ImplicitTreapPair splitRes = split(this, k);
+    public ImplicitTreap<T> add(int k, long y) {
+        return add(k, new ImplicitTreap<>(y));
+    }
+
+    public ImplicitTreap<T> add(int k, ImplicitTreap<T> toAdd) {
+        ImplicitTreapPair<T> splitRes = split(this, k);
         return merge(merge(splitRes.getFirst(), toAdd), splitRes.getSecond());
     }
 
-    public ImplicitTreap remove(int k) {
-        ImplicitTreapPair splitRes = split(this, k);
+    public ImplicitTreap<T> remove(int k) {
+        ImplicitTreapPair<T> splitRes = split(this, k);
         return merge(splitRes.getFirst(), split(splitRes.getSecond(), 1).getSecond());
     }
 
-    public static void inOrderPrint(ImplicitTreap t) {
+    public static <E> void inOrderPrint(ImplicitTreap<E> t) {
         if (t == null) return;
         inOrderPrint(t.left);
         System.out.println(t);
         inOrderPrint(t.right);
     }
 
-    public static ImplicitTreap makeFromArray(List<Vertex> list) {
-//        ru.ifmo.ads.romashkina.treap.ImplicitTreap t = new ru.ifmo.ads.romashkina.treap.ImplicitTreap(list.get(0));
-        for (int i = 1; i < list.size(); i++) {
-//            t.add(i, list.get(i));
+    public static <E> ImplicitTreap<E> makeFromArray(List<E> array) {
+        ImplicitTreap<E> t = new ImplicitTreap<>(array.get(0));
+        for (int i = 1; i < array.size(); i++) {
+            t = t.add(i - 1, new ImplicitTreap<>(array.get(i)));
         }
-        return null;
+        return t;
+    }
+
+    public List<T> makeArray(List<T> res) {
+        if (this.left != null) res = this.left.makeArray(res);
+        res.add(this.value);
+        if (this.right != null) res = this.right.makeArray(res);
+        return res;
+    }
+
+//    public List<ImplicitTreap<T>> makeTreapsArray(List<ImplicitTreap<T>> res) {
+//        if (this.left != null) res = this.left.makeTreapsArray(res);
+//        res.add(this);
+//        if (this.right != null) res = this.right.makeTreapsArray(res);
+//        return res;
+//    }
+
+    public static List<Integer> createArray(int n) {
+        List<Integer> result = new ArrayList<>(n);
+        Random r = new Random();
+        for (int i = 0; i < n; i++) {
+            int toAdd;
+            while (true) {
+                if (!result.contains(toAdd = r.nextInt(n + 1))) {
+                    result.add(toAdd);
+                    break;
+                }
+            }
+        }
+        return  result;
     }
 
     public long getY() {
@@ -146,32 +184,40 @@ public class ImplicitTreap {
         this.y = y;
     }
 
-    public ImplicitTreap getLeft() {
+    public ImplicitTreap<T> getLeft() {
         return left;
     }
 
-    public void setLeft(ImplicitTreap left) {
+    public void setLeft(ImplicitTreap<T> left) {
         this.left = left;
     }
 
-    public ImplicitTreap getRight() {
+    public ImplicitTreap<T> getRight() {
         return right;
     }
 
-    public void setRight(ImplicitTreap right) {
+    public void setRight(ImplicitTreap<T> right) {
         this.right = right;
     }
 
-    public ImplicitTreap getParent() {
+    public ImplicitTreap<T> getParent() {
         return parent;
     }
 
-    public void setParent(ImplicitTreap parent) {
+    public void setParent(ImplicitTreap<T> parent) {
         this.parent = parent;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
     }
 
     @Override
     public String toString() {
-        return "{ y = " + y + ", size = " + size + " " + parent + '}';
+        return "{ value = " + value + " y = " + y + ", size = " + size + " " + parent + '}';
     }
 }

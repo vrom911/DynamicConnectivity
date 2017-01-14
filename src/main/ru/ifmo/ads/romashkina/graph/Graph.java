@@ -25,6 +25,6 @@ public class Graph {
 
     @Override
     public String toString() {
-        return "ru.ifmo.ads.romashkina.graph.Graph{ " + "vertex = " + vertex + '}';
+        return "Graph{ " + "vertex = " + vertex + '}';
     }
 }

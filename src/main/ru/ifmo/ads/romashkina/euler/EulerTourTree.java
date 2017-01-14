@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EulerTourTree {
-    private ImplicitTreap tree;
+    private ImplicitTreap<Vertex> tree;
     private List<Vertex> tour;
 
     EulerTourTree(Graph graph) {
