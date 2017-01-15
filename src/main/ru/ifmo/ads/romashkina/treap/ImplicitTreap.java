@@ -3,56 +3,93 @@ package ru.ifmo.ads.romashkina.treap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
+
 
 public class ImplicitTreap<T> {
     private long y;
     private ImplicitTreap<T> left;
     private ImplicitTreap<T> right;
     private ImplicitTreap<T> parent;
-    private int size;
+    private int treeSize;
     private T value;
 
-    public  ImplicitTreap() {
-        this(new Random().nextLong());
-    }
-
     public  ImplicitTreap(T value) {
-        this(new Random().nextLong());
-        this.value = value;
-    }
-
-    public  ImplicitTreap(long y, T value) {
-        this(y);
-        this.value = value;
+        this(new Random().nextLong(), value);
     }
 
     public ImplicitTreap(long y){
-        this.y = y;
-        this.value = null;
-        this.left = null;
-        this.right = null;
-        this.parent = null;
-        this.updateSize();
+        this(y, null);
+    }
+
+    public ImplicitTreap(long y, T value) {
+        this(y, value, null, null, null);
     }
 
     private ImplicitTreap(long y, T value, ImplicitTreap<T> left, ImplicitTreap<T> right, ImplicitTreap<T> parent) {
         this.y = y;
         this.value = value;
-        this.left = left;
-        this.right = right;
+        setLeft(left);
+        setRight(right);
         this.parent = parent;
-        if (left != null) this.left.parent = this;
-        if (right != null) this.right.parent = this;
-        this.updateSize();
+        updateSize();
     }
 
+    public long getY() {
+        return y;
+    }
+
+    public void setY(long y) {
+        this.y = y;
+    }
+
+    public ImplicitTreap<T> getLeft() {
+        return left;
+    }
+
+    public void setLeft(ImplicitTreap<T> left) {
+        this.left = left;
+        if (this.left != null) {
+            this.left.parent = this;
+        }
+        updateSize();
+    }
+
+    public ImplicitTreap<T> getRight() {
+        return right;
+    }
+
+    public void setRight(ImplicitTreap<T> right) {
+        this.right = right;
+        if (this.right != null) {
+            this.right.parent = this;
+        }
+        updateSize();
+    }
+
+    public ImplicitTreap<T> getParent() {
+        return parent;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
 
     public static <E> int size(ImplicitTreap<E> t) {
-        return t == null ? 0 : t.size;
+        return t == null ? 0 : t.treeSize;
     }
 
     private void updateSize() {
-        this.size = size(left) + size(right) + 1;
+        treeSize = size(left) + size(right) + 1;
+    }
+
+    @Override
+    public String toString() {
+        return "{ value = " + value + " y = " + y + ", treeSize = " + treeSize + " " + isRoot(this) + '}';
     }
 
     public static <E> ImplicitTreap<E> merge(ImplicitTreap<E> l, ImplicitTreap<E> r) {
@@ -70,36 +107,31 @@ public class ImplicitTreap<T> {
 
     public static <E> ImplicitTreapPair<E> split(ImplicitTreap<E> t, int k) {
         ImplicitTreapPair<E> result = new ImplicitTreapPair<>(null, null);
-        if (t == null) {
-            return result;
-        }
+        if (t == null) return result;
+
         int ind = size(t.left) + 1;
         if (ind <= k) {
             result = split(t.right, k - ind);
-            t.right = result.getFirst();
-            if (t.right != null) t.right.setParent(t);
-            t.setParent(null);
-            t.updateSize();
+            t.setRight(result.getFirst());
+            t.parent = null;
             result.setFirst(t);
-            return result;
         } else {
             result = split(t.left, k);
-            t.left = result.getSecond();
-            if (t.left != null) t.left.setParent(t);
-            t.setParent(null);
-            t.updateSize();
+            t.setLeft(result.getSecond());
+            t.parent = null;
             result.setSecond(t);
-
-            return result;
         }
+
+        return result;
     }
 
-    public static <E> ImplicitTreapPair<E> split(ImplicitTreap<E> node) {
-        return split(getRoot(node), findIndex(node));
+    private static <E> boolean isRoot(ImplicitTreap<E> node) {
+        return node == null || node.parent == null;
     }
 
     public static <E> int findIndex(ImplicitTreap<E> node) {
         if (node == null) return 0;
+
         int result = size(node.left) + 1;
         while (!isRoot(node)) {
             if (node.parent.right == node) {
@@ -110,25 +142,35 @@ public class ImplicitTreap<T> {
         return result;
     }
 
-    private static <E> boolean isRoot(ImplicitTreap<E> node) {
-        return (node == null) || node.parent == null;
+    // Написать оптимальней, если захочется использовать
+    public static <E> E valueByIndex(ImplicitTreap<E> tree, int i) {
+        if (tree == null) return null;
+
+        int curIndex = findIndex(tree);
+        if (i == curIndex) return tree.getValue();
+        if (i < curIndex) return valueByIndex(tree.getLeft(), i);
+        return valueByIndex(tree.getRight(), i);
     }
 
     private static <E> ImplicitTreap<E> getRoot(ImplicitTreap<E> node) {
-        return (isRoot(node)) ? node : getRoot(node.parent);
+        return isRoot(node) ? node : getRoot(node.parent);
     }
 
-    public ImplicitTreap<T> add(int k, long y) {
-        return add(k, new ImplicitTreap<>(y));
+    public static <E> ImplicitTreapPair<E> split(ImplicitTreap<E> node) {
+        return split(getRoot(node), findIndex(node));
     }
 
-    public ImplicitTreap<T> add(int k, ImplicitTreap<T> toAdd) {
-        ImplicitTreapPair<T> splitRes = split(this, k);
+    public static <E> ImplicitTreap<E> add(ImplicitTreap<E> t, int k, ImplicitTreap<E> toAdd) {
+        ImplicitTreapPair<E> splitRes = split(t, k);
         return merge(merge(splitRes.getFirst(), toAdd), splitRes.getSecond());
     }
 
-    public ImplicitTreap<T> remove(int k) {
-        ImplicitTreapPair<T> splitRes = split(this, k);
+    public static <E> ImplicitTreap<E> add(ImplicitTreap<E> t, int k, E value) {
+        return add(t, k, new ImplicitTreap<>(value));
+    }
+
+    public static <E> ImplicitTreap<E> remove(ImplicitTreap<E> tree, int k) {
+        ImplicitTreapPair<E> splitRes = split(tree, k);
         return merge(splitRes.getFirst(), split(splitRes.getSecond(), 1).getSecond());
     }
 
@@ -140,84 +182,27 @@ public class ImplicitTreap<T> {
     }
 
     public static <E> ImplicitTreap<E> makeFromArray(List<E> array) {
-        ImplicitTreap<E> t = new ImplicitTreap<>(array.get(0));
-        for (int i = 1; i < array.size(); i++) {
-            t = t.add(i - 1, new ImplicitTreap<>(array.get(i)));
+        ImplicitTreap<E> t = null;
+        for (int i = 0; i < array.size(); i++) {
+            t = add(t, i, array.get(i));
         }
         return t;
     }
 
-    public List<T> makeArray(List<T> res) {
-        if (this.left != null) res = this.left.makeArray(res);
-        res.add(this.value);
-        if (this.right != null) res = this.right.makeArray(res);
-        return res;
+    public static <E> List<E> makeValueList(ImplicitTreap<E> tree) {
+        return makeFunctionList(tree, ImplicitTreap::getValue);
     }
 
-//    public List<ImplicitTreap<T>> makeTreapsArray(List<ImplicitTreap<T>> res) {
-//        if (this.left != null) res = this.left.makeTreapsArray(res);
-//        res.add(this);
-//        if (this.right != null) res = this.right.makeTreapsArray(res);
-//        return res;
-//    }
-
-    public static List<Integer> createArray(int n) {
-        List<Integer> result = new ArrayList<>(n);
-        Random r = new Random();
-        for (int i = 0; i < n; i++) {
-            int toAdd;
-            while (true) {
-                if (!result.contains(toAdd = r.nextInt(n + 1))) {
-                    result.add(toAdd);
-                    break;
-                }
-            }
-        }
-        return  result;
+    public static <E, R> List<R> makeFunctionList(ImplicitTreap<E> tree, Function<ImplicitTreap<E>, R> f) {
+        List<R> result = new ArrayList<>(size(tree));
+        makeArrayWithList(tree, f, result);
+        return result;
     }
 
-    public long getY() {
-        return y;
-    }
-
-    public void setY(long y) {
-        this.y = y;
-    }
-
-    public ImplicitTreap<T> getLeft() {
-        return left;
-    }
-
-    public void setLeft(ImplicitTreap<T> left) {
-        this.left = left;
-    }
-
-    public ImplicitTreap<T> getRight() {
-        return right;
-    }
-
-    public void setRight(ImplicitTreap<T> right) {
-        this.right = right;
-    }
-
-    public ImplicitTreap<T> getParent() {
-        return parent;
-    }
-
-    public void setParent(ImplicitTreap<T> parent) {
-        this.parent = parent;
-    }
-
-    public T getValue() {
-        return value;
-    }
-
-    public void setValue(T value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return "{ value = " + value + " y = " + y + ", size = " + size + " " + parent + '}';
+    private static <E, R> void makeArrayWithList(ImplicitTreap<E> tree, Function<ImplicitTreap<E>, R> f, List<R> res) {
+        if (tree == null) return;
+        makeArrayWithList(tree.left, f, res);
+        res.add(res.size(), f.apply(tree));
+        makeArrayWithList(tree.right, f, res);
     }
 }
