@@ -9,29 +9,12 @@ public class Vertex implements Comparable {
     private int number;
     private String label;
     private List<Edge> edges;
-    private ImplicitTreap firstIn;
-    private ImplicitTreap lastIn;
+    private ImplicitTreap<Vertex> in;
 
     public Vertex(String label, int number) {
         this.number = number;
         this.label = label;
         this.edges = new ArrayList<>();
-    }
-
-    public ImplicitTreap getFirstIn() {
-        return firstIn;
-    }
-
-    public void setFirstIn(ImplicitTreap firstIn) {
-        this.firstIn = firstIn;
-    }
-
-    public ImplicitTreap getLastIn() {
-        return lastIn;
-    }
-
-    public void setLastIn(ImplicitTreap lastIn) {
-        this.lastIn = lastIn;
     }
 
     public String getLabel() {
