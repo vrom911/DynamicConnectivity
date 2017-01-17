@@ -1,55 +1,91 @@
 package ru.ifmo.ads.romashkina.euler;
 
 import ru.ifmo.ads.romashkina.graph.Graph;
-import ru.ifmo.ads.romashkina.graph.GraphUtility;
 import ru.ifmo.ads.romashkina.graph.Vertex;
 import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
+import ru.ifmo.ads.romashkina.treap.ImplicitTreapPair;
 
 import java.util.List;
 
+import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.*;
+
 /*
- * 0. Научиться задавать при чтении из файла(ов) несколько деревьев
- * 1. Написать функцию, которая строит декартово дерево по дереву-графу (в файле задавай дерево):
- *    + считать граф
- *    + найти эйлеров путь (список вершин)
- *    + создать список декартовых деревьев размера 1 для каждой вершины
- *    + заполнить у вершин вхождения в дерево
- *    + затем смёржить все одиночные деревья в одно большое дерево (лучше написать вспомогательную функцию: мёрж списка деревьев)
- * 2. Написать функцию link, которая добавляет ребро между двумя вершинами
- *    + принимает две вершины (Vertex)
- *    + получает ноды дерева, соответвующие вхождениям вершины
- *    + для первой:
- *         + разрешаешь дерево по ноде
- *         + добавляешь первую вершину графа в начало второго дерева
- *    + для второй:
- *         + разрезаешь дерево по ноде
- *         + добавить в начало второго дерева узел с вершиной, по которой разрезаешь и обновить ссылку у вершины дерева на новосозданную
- *         + удаляешь первый узел из первого элемента пары, обновив у вершины узла ссылку на последний узел дерева
- *    + затем смёржить куски в правильном порядке (3 мёржа)
- *    + обратить внимание на частные случаи: когда графы из одной вершины, когда вторая вершина в начале пути
- * 3. Написать функцию areConnected: проверка того, что две вершины связаны
- * 4. Напиши тесты (ручные): задай руками несколько эйлеровых обходов разных графов, построй по ним деревья и проверь, что ответ совпадает
- *    + примеры: листочек, конспект, лекция Маврина
- *    + обязательно на крайние случаи (графы из одной вершины)
+ * 0. Убрать считывать из файла в конструкторе; заменить на статический метод
+ * 1. Заменить список рёбер в Vertex на HashMap из самой вершины в ребро, ведущее в эту вершину
+ *    + getEdgeFrom убрать
+ * 2. Поправь findEulerPath, чтобы он возвращал сразу ImplicitTreap по эйлерову пути
+ *    + перенести в тесты функции построения ImplicitTreap из списка вершин
+ *    + не забыть обновить ссылки с вершин на узлы внутри поиска пути
+ * 3. Ничего не Хранить в EulerTourTree
+ * 4. Убрать метод добавления вершины
+ * 5. Добавлять рёбра вдоль пути в тестах (и обновлять в них ссылки на вершины)
+ *    + тут потребуется рефакторинг
+ * 5. Добавить метод удаления ребра (возвращает пару из деревьев)
+ * 6. Добавить ручные тесты на несколько link'ов подряд
+ * 7. Добавить ручные простые тесты на cut
  */
 public class EulerTourTree {
-    private ImplicitTreap<Vertex> tree;
-    private List<Vertex> tour;
+    private List<Graph> graphs;
 
-    EulerTourTree(Graph graph) {
-        this.tour = GraphUtility.findEulerPath(graph.getRandomVertex(), graph.getVertexNum());
-        this.tree = ImplicitTreap.makeFromArray(this.tour);
+    EulerTourTree(List<Graph> graphs) {
+        this.graphs = graphs;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder t = new StringBuilder();
-        for (Vertex v : tour) {
-            t.append(v.getLabel()).append(" ");
-        }
-        return "ET Tree{ \n" +
-                "tree = " + tree +
-                "\ntour = " + t.toString() +
-                "\n}";
+    public static ImplicitTreap<Vertex> link(Vertex v, Vertex u) {
+        if (areConnected(u, v)) return null;
+
+        // разрезаем обход первого эйлерового дерева по вершине v; обновляем ссылку у ребра v -> x на новый клон v
+        ImplicitTreapPair<Vertex> vPair = split(v.getIn());
+        ImplicitTreap<Vertex> beforeV = vPair.getFirst();
+        ImplicitTreap<Vertex> afterV  = vPair.getSecond();
+        ImplicitTreap<Vertex> vNew = new ImplicitTreap<>(v);
+        Vertex nextAfterV = getValueByIndex(afterV, 1);
+//        if (nextAfterV != null) nextAfterV.getEdgeFrom(v).setFromNode(vNew);
+//        else System.out.println("Arrrr");
+        afterV = merge(vNew, afterV);
+
+        // разрезаем обход второго эйлерового дерева по вершине u; обновляем ссылку у ребра u -> y на новый клон u
+        ImplicitTreapPair<Vertex> uPair = split(u.getIn());
+        ImplicitTreap<Vertex> beforeU = uPair.getFirst();
+        ImplicitTreap<Vertex> afterU = uPair.getSecond();
+        ImplicitTreap<Vertex> uNew = new ImplicitTreap<>(u);
+        Vertex nextAfterU = getValueByIndex(afterU, 1); // тут NPE если дерево в u состоит из одной вершины всего
+//        if (nextAfterU != null) nextAfterU.getEdgeFrom(u).setFromNode(uNew);
+//        else System.out.println("Arrrr2");
+        afterU = merge(uNew, afterU);
+
+        u.setIn(uNew); // Обновить у вершины ссылку на ноду на случай если u -- первая вершина пути
+        beforeU = remove(beforeU, 0); // удалить первую вершину эйлеровго пути
+
+        // обновить ссылку на from у ребра между первой (удалённой) вершиной в пути на её последнее вхождение
+//        if (fullSize(beforeU) > 0) {
+//            ImplicitTreap<Vertex> lastInAfterU = getTreapByIndex(afterU, fullSize(afterU));
+//            Vertex lastVertexInAfterU = lastInAfterU.getValue();
+//            getValueByIndex(beforeU, 1).getEdgeTo(lastVertexInAfterU).setFromNode(lastInAfterU); // теперь не падает!!!
+//
+//        }
+
+//        addOrientedEdge(v, u);
+//        v.getEdgeTo(u).setFromNode(getTreapByIndex(beforeV, fullSize(beforeV)));
+//        v.getEdgeTo(u).setToNode(uNew); // uNew == new first in afterU (clone)
+//        u.getEdgeTo(v).setFromNode(getTreapByIndex(beforeU, fullSize(beforeU)));
+//        u.getEdgeTo(v).setToNode(vNew); // vNew == new first in afterV (clone)
+
+        ImplicitTreap<Vertex> vu = merge(beforeV, afterU);
+        ImplicitTreap<Vertex> uv = merge(beforeU, afterV);
+        return merge(vu, uv);
     }
+
+    public static void cut(Vertex v, Vertex u) {
+        if (!v.hasEdge(u)) return;
+
+
+
+    }
+
+    public static boolean areConnected(Vertex v, Vertex u) {
+        return getRoot(v.getIn()) == getRoot(u.getIn());
+    }
+
+
 }

@@ -5,7 +5,7 @@ import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Vertex implements Comparable {
+public class Vertex {
     private int number;
     private String label;
     private List<Edge> edges;
@@ -17,8 +17,20 @@ public class Vertex implements Comparable {
         this.edges = new ArrayList<>();
     }
 
+    public ImplicitTreap<Vertex> getIn() {
+        return in;
+    }
+
+    public void setIn(ImplicitTreap<Vertex> in) {
+        this.in = in;
+    }
+
     public String getLabel() {
         return this.label;
+    }
+
+    public int getNumber() {
+        return number;
     }
 
     public boolean hasLabel(String l) {
@@ -27,10 +39,6 @@ public class Vertex implements Comparable {
 
     public List<Edge> getEdges() {
         return this.edges;
-    }
-
-    public int getNumber() {
-        return number;
     }
 
     public int getEdgesNumber() {
@@ -45,17 +53,32 @@ public class Vertex implements Comparable {
         this.edges.add(e);
     }
 
-    @Override
-    public String toString() {
-        return "ru.ifmo.ads.romashkina.graph.Vertex{ " + label + ", num: " + number +
-                ", edges=" + edges +
-                " }\n";
+    public boolean hasEdge(Vertex u) {
+        for (Edge e : edges) {
+            if (e.getTo() == u) return true;
+        }
+        return false;
+    }
+
+    public Edge getEdgeTo(Vertex to) {
+        for (Edge e : edges) {
+            if (e.getTo() == to) return e;
+        }
+        return null;
+    }
+
+    public Edge getEdgeFrom(Vertex from) {
+        for (Edge e : from.edges) {
+            if (e.getTo() == this) return e;
+        }
+        return null;
     }
 
     @Override
-    public int compareTo(Object o) {
-        Vertex v = (Vertex) o;
-        return Integer.valueOf(number).compareTo(v.getNumber());
+    public String toString() {
+        return "{ " + label + ", num: " + number +
+                ", edges=" + edges +
+                " }\n";
     }
 
     @Override
@@ -67,7 +90,6 @@ public class Vertex implements Comparable {
 
         if (number != vertex.number) return false;
         return label.equals(vertex.label);
-
     }
 
     @Override

@@ -39,10 +39,6 @@ public class ImplicitTreap<T> {
         return y;
     }
 
-    public void setY(long y) {
-        this.y = y;
-    }
-
     public ImplicitTreap<T> getLeft() {
         return left;
     }
@@ -83,6 +79,10 @@ public class ImplicitTreap<T> {
         return t == null ? 0 : t.treeSize;
     }
 
+    public static <E> int fullSize(ImplicitTreap<E> t) {
+        return size(getRoot(t));
+    }
+
     private void updateSize() {
         treeSize = size(left) + size(right) + 1;
     }
@@ -96,11 +96,19 @@ public class ImplicitTreap<T> {
         if (l == null) return r;
         if (r == null) return l;
 
-        ImplicitTreap<E> result;
         if (l.y < r.y) {
-            result = new ImplicitTreap<>(r.y, r.value, merge(l, r.left), r.right, r.parent);
+            r.setLeft(merge(l, r.left));
+            return r;
         } else {
-            result = new ImplicitTreap<>(l.y, l.value, l.left, merge(l.right, r), l.parent);
+            l.setRight(merge(l.right, r));
+            return l;
+        }
+    }
+
+    public static <E> ImplicitTreap<E> mergeTreapList(List<ImplicitTreap<E>> treaps) {
+        ImplicitTreap<E> result = null;
+        for (ImplicitTreap<E> t : treaps) {
+            result = merge(result, t);
         }
         return result;
     }
@@ -142,17 +150,33 @@ public class ImplicitTreap<T> {
         return result;
     }
 
-    // Написать оптимальней, если захочется использовать
-    public static <E> E valueByIndex(ImplicitTreap<E> tree, int i) {
-        if (tree == null) return null;
-
-        int curIndex = findIndex(tree);
-        if (i == curIndex) return tree.getValue();
-        if (i < curIndex) return valueByIndex(tree.getLeft(), i);
-        return valueByIndex(tree.getRight(), i);
+    private static <E> ImplicitTreap<E> getByIndexFromRoot(ImplicitTreap<E> tree, int i) {
+        int ind = size(tree.getLeft()) + 1;
+        if (ind == i) {
+            return tree;
+        } else if (ind < i) {
+            return getByIndexFromRoot(tree.getRight(), i - ind);
+        } else {
+            return getByIndexFromRoot(tree.getLeft(), i);
+        }
     }
 
-    private static <E> ImplicitTreap<E> getRoot(ImplicitTreap<E> node) {
+    public static <E, R> R getByIndex(ImplicitTreap<E> tree, Function<ImplicitTreap<E>, R> f, int i) {
+        if (tree == null) return null;
+        // TODO: проверить в границах i
+        ImplicitTreap<E> res = getByIndexFromRoot(getRoot(tree), i);
+        return res == null ? null : f.apply(res);
+    }
+
+    public  static <E> ImplicitTreap<E> getTreapByIndex(ImplicitTreap<E> tree, int i) {
+        return getByIndex(tree, Function.identity(), i);
+    }
+
+    public  static <E> E getValueByIndex(ImplicitTreap<E> tree, int i) {
+        return getByIndex(tree, ImplicitTreap::getValue, i);
+    }
+
+    public static <E> ImplicitTreap<E> getRoot(ImplicitTreap<E> node) {
         return isRoot(node) ? node : getRoot(node.parent);
     }
 

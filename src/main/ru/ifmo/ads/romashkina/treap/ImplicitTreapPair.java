@@ -17,11 +17,11 @@ public class ImplicitTreapPair<T> {
         return second;
     }
 
-    protected void setFirst(ImplicitTreap<T> first) {
+    public void setFirst(ImplicitTreap<T> first) {
         this.first = first;
     }
 
-    protected void setSecond(ImplicitTreap<T> second) {
+    public void setSecond(ImplicitTreap<T> second) {
         this.second = second;
     }
 }

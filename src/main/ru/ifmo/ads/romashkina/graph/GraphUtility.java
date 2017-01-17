@@ -3,12 +3,22 @@ package ru.ifmo.ads.romashkina.graph;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GraphUtility {
 
-    public static Graph readGraph(String fileName) {
-        List<Vertex> vertex = new ArrayList<>();
+    public static void addOrientedEdge(Vertex from, Vertex to) {
+        if (from != null && to != null) {
+            from.addEdge(to);
+            to.addEdge(from);
+        }
+    }
+
+    public static List<Vertex> readGraph(String fileName) {
+        List<Vertex> vertex;
         try (FileReader fInput = new FileReader(fileName);
              BufferedReader inputBuf = new BufferedReader(fInput)
         ) {
@@ -34,35 +44,15 @@ public class GraphUtility {
                 String[] edge = row.split(" ");
                 Vertex from = vertex.get(labelToNumber.get(edge[0]));
                 Vertex to = vertex.get(labelToNumber.get(edge[1]));
-                if (from != null && to != null) {
-                    from.addEdge(to);
-                    to.addEdge(from);
-                }
+                addOrientedEdge(from, to);
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
-        return new Graph(vertex);
+        return vertex;
     }
 
-    public static List<Vertex> findEulerPath(Vertex u, int vertexNum) {
-        Deque<Vertex> tour = new ArrayDeque<>();
-        tour.addLast(u);
-        List<Vertex> result = new ArrayList<>();
-        int[] edgeCounters = new int[vertexNum];
-        while (!tour.isEmpty()) {
-            Vertex w = tour.peekLast();
-            int wNum = w.getNumber();
-            int i = edgeCounters[wNum];
-            if (i < w.getEdgesNumber()) {
-                tour.addLast(w.getEdges().get(i).getTo());
-                edgeCounters[wNum]++;
-            }
-            if (w.equals(tour.peekLast())) {
-                tour.pollLast();
-                result.add(w);
-            }
-        }
-        return result;
-    }
+    // Лучше перенести в eulerUtility
+
 }
