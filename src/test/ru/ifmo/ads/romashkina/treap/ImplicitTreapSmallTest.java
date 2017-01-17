@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.*;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreapTestUtility.*;
 
@@ -25,6 +26,17 @@ public class ImplicitTreapSmallTest {
     @Test
     public void simpleSizeTest() {
         assertEquals(1, size(simpleT));
+    }
+
+    @Test
+    public void simpleGetRootTest() {
+        assertEquals(simpleT, getRoot(simpleT));
+    }
+
+    @Test
+    public void getRootTest() {
+        merge(simpleT, simpleT1);
+        assertTrue(getRoot(simpleT) == getRoot(simpleT1));
     }
 
     @Test
@@ -55,11 +67,11 @@ public class ImplicitTreapSmallTest {
 
     @Test
     public void simpleValueByIndexTest() {
-        assertEquals(null, valueByIndex(nullT, 1));
-        assertEquals(Integer.valueOf(0), valueByIndex(simpleT, 1));
-        assertEquals(Integer.valueOf(1), valueByIndex(simpleT1, 1));
+        assertEquals(null, getValueByIndex(nullT, 1));
+        assertEquals(Integer.valueOf(0), getValueByIndex(simpleT, 1));
+        assertEquals(Integer.valueOf(1), getValueByIndex(simpleT1, 1));
         ImplicitTreap<Integer> testMerge = merge(simpleT, simpleT1);
-        assertEquals(Integer.valueOf(1), valueByIndex(testMerge, 2));
+        assertEquals(Integer.valueOf(1), getValueByIndex(testMerge, 2));
     }
 
     @Test
@@ -124,16 +136,16 @@ public class ImplicitTreapSmallTest {
         assertEquals("Priority changed", res1.getY(), res2.getY());
     }
 
-    @Test
-    public void simpleAddByIndexTest() {
-        ImplicitTreap<Integer> res = add(simpleT, 0, simpleT1);
-        assertEquals(2, size(res));
-    }
-
-    @Test
-    public void addRemoveTest() {
-        ImplicitTreap<Integer> addT = add(simpleT, 0, simpleT1);
-        ImplicitTreap<Integer> removeT = remove(addT, 0);
-        assertEquals(simpleT.getY(), removeT.getY());
-    }
+//    @Test
+//    public void simpleAddByIndexTest() {
+//        ImplicitTreap<Integer> res = add(simpleT, 0, simpleT1);
+//        assertEquals(2, size(res));
+//    }
+//
+//    @Test
+//    public void addRemoveTest() {
+//        ImplicitTreap<Integer> addT = add(simpleT, 0, simpleT1);
+//        ImplicitTreap<Integer> removeT = remove(addT, 0);
+//        assertEquals(simpleT.getY(), removeT.getY());
+//    }
 }

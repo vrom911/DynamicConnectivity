@@ -105,4 +105,14 @@ public class ImplicitTreapTest {
         ImplicitTreap<Integer> t = makeFromArray(array);
         assertEquals(array, makeValueList(t));
     }
+
+    @Test
+    public void  getValueByIndexTestBig() {
+        List<Integer> array = createArray(MAX_TREAP_SIZE);
+        ImplicitTreap<Integer> tree = makeFromArray(array);
+        for (int i = 0; i < MAX_TREAP_SIZE; i++) {
+            assertEquals(array.get(i), getValueByIndex(tree, i + 1));
+        }
+
+    }
 }
