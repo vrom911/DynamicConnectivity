@@ -3,14 +3,8 @@ package ru.ifmo.ads.romashkina.graph;
 import java.util.List;
 import java.util.Random;
 
-import static ru.ifmo.ads.romashkina.graph.GraphUtility.readGraph;
-
 public class Graph {
     private List<Vertex> vertex;
-
-    public Graph(String fileName) {
-        this(readGraph(fileName));
-    }
 
     public Graph(List<Vertex> vertex) {
         this.vertex = vertex;
@@ -36,5 +30,15 @@ public class Graph {
     @Override
     public String toString() {
         return "Graph{ " + "vertex = " + vertex + '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        Graph o = (Graph) obj;
+
+        return vertex.equals(o.vertex);
     }
 }

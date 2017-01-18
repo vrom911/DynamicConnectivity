@@ -17,6 +17,13 @@ public class GraphUtility {
         }
     }
 
+    public static void removeOrientedEdge(Vertex from, Vertex to) {
+        if (from != null && to != null) {
+            from.removeEdgeTo(to);
+            to.removeEdgeTo(from);
+        }
+    }
+
     public static List<Vertex> readGraph(String fileName) {
         List<Vertex> vertex;
         try (FileReader fInput = new FileReader(fileName);
@@ -53,6 +60,8 @@ public class GraphUtility {
         return vertex;
     }
 
-    // Лучше перенести в eulerUtility
-
+    public static Graph makeGraphFromFile(String filename) {
+        List<Vertex> vertex = readGraph(filename);
+        return vertex == null ? null : new Graph(vertex);
+    }
 }

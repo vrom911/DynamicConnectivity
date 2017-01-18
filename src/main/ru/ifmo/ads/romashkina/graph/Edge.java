@@ -7,10 +7,17 @@ public class Edge {
     private Vertex to;
     private ImplicitTreap<Vertex> fromNode;
     private ImplicitTreap<Vertex> toNode;
+    private int level;
 
     public Edge(Vertex from, Vertex to) {
+        this(from, to, null, null);
+    }
+
+    public Edge(Vertex from, Vertex to, ImplicitTreap<Vertex> fromNode, ImplicitTreap<Vertex> toNode) {
         this.from = from;
         this.to = to;
+        this.level = 0;
+        setLinksToNodes(fromNode, toNode);
     }
 
     public Vertex getFrom() {
@@ -43,6 +50,11 @@ public class Edge {
 
     public void setToNode(ImplicitTreap<Vertex> toNode) {
         this.toNode = toNode;
+    }
+
+    public void setLinksToNodes(ImplicitTreap<Vertex> fromNode, ImplicitTreap<Vertex> toNode) {
+        setFromNode(fromNode);
+        setToNode(toNode);
     }
 
     @Override

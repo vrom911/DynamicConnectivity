@@ -2,19 +2,19 @@ package ru.ifmo.ads.romashkina.graph;
 
 import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Vertex {
     private int number;
     private String label;
-    private List<Edge> edges;
+    private Map<Vertex, Edge> edges;
     private ImplicitTreap<Vertex> in;
 
     public Vertex(String label, int number) {
         this.number = number;
         this.label = label;
-        this.edges = new ArrayList<>();
+        this.edges = new HashMap<>();
     }
 
     public ImplicitTreap<Vertex> getIn() {
@@ -26,7 +26,7 @@ public class Vertex {
     }
 
     public String getLabel() {
-        return this.label;
+        return label;
     }
 
     public int getNumber() {
@@ -34,50 +34,42 @@ public class Vertex {
     }
 
     public boolean hasLabel(String l) {
-        return this.label.equals(l);
+        return label.equals(l);
     }
 
-    public List<Edge> getEdges() {
-        return this.edges;
+    public Map<Vertex, Edge> getEdges() {
+        return edges;
     }
 
     public int getEdgesNumber() {
-        return this.edges.size();
+        return edges.size();
     }
 
     public void addEdge(Vertex to) {
-        this.edges.add(new Edge(this, to));
+        edges.put(to, new Edge(this, to));
     }
 
-    public void addEdge(Edge e) {
-        this.edges.add(e);
+    public void addEdge(Edge edge) {
+        edges.put(edge.getTo(), edge);
     }
 
     public boolean hasEdge(Vertex u) {
-        for (Edge e : edges) {
-            if (e.getTo() == u) return true;
-        }
-        return false;
+        return edges.containsKey(u);
     }
 
     public Edge getEdgeTo(Vertex to) {
-        for (Edge e : edges) {
-            if (e.getTo() == to) return e;
-        }
-        return null;
+        return edges.get(to);
     }
 
-    public Edge getEdgeFrom(Vertex from) {
-        for (Edge e : from.edges) {
-            if (e.getTo() == this) return e;
-        }
-        return null;
+    public void removeEdgeTo(Vertex to) {
+        edges.remove(to);
     }
 
     @Override
     public String toString() {
+//        StringBuilder edges =
         return "{ " + label + ", num: " + number +
-                ", edges=" + edges +
+                ", edges=" + edges.values() +
                 " }\n";
     }
 
@@ -89,6 +81,7 @@ public class Vertex {
         Vertex vertex = (Vertex) o;
 
         if (number != vertex.number) return false;
+//        if (!edges.equals(vertex.edges)) return false;
         return label.equals(vertex.label);
     }
 

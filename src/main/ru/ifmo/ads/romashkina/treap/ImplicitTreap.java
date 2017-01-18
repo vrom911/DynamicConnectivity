@@ -162,7 +162,7 @@ public class ImplicitTreap<T> {
     }
 
     public static <E, R> R getByIndex(ImplicitTreap<E> tree, Function<ImplicitTreap<E>, R> f, int i) {
-        if (tree == null) return null;
+        if (tree == null || fullSize(tree) < i) return null;
         // TODO: проверить в границах i
         ImplicitTreap<E> res = getByIndexFromRoot(getRoot(tree), i);
         return res == null ? null : f.apply(res);
@@ -184,13 +184,9 @@ public class ImplicitTreap<T> {
         return split(getRoot(node), findIndex(node));
     }
 
-    public static <E> ImplicitTreap<E> add(ImplicitTreap<E> t, int k, ImplicitTreap<E> toAdd) {
-        ImplicitTreapPair<E> splitRes = split(t, k);
-        return merge(merge(splitRes.getFirst(), toAdd), splitRes.getSecond());
-    }
-
     public static <E> ImplicitTreap<E> add(ImplicitTreap<E> t, int k, E value) {
-        return add(t, k, new ImplicitTreap<>(value));
+        ImplicitTreapPair<E> splitRes = split(t, k);
+        return merge(merge(splitRes.getFirst(), new ImplicitTreap<>(value)), splitRes.getSecond());
     }
 
     public static <E> ImplicitTreap<E> remove(ImplicitTreap<E> tree, int k) {
