@@ -2,10 +2,9 @@ package ru.ifmo.ads.romashkina.treap;
 
 import org.junit.Before;
 import org.junit.Test;
+import ru.ifmo.ads.romashkina.utils.Pair;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.*;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreapTestUtility.*;
 
@@ -76,7 +75,7 @@ public class ImplicitTreapSmallTest {
 
     @Test
     public void nullSplitByIndexTest() {
-        ImplicitTreapPair<Integer> testPair = split(nullT, 0);
+        Pair<ImplicitTreap<Integer>> testPair = split(nullT, 0);
         assertNull(testPair.getFirst());
         assertEquals("Wrong Size of splitted treap 1", 0, size(testPair.getFirst()));
         assertNull(testPair.getSecond());
@@ -91,7 +90,7 @@ public class ImplicitTreapSmallTest {
 
     @Test
     public void simpleSplitByIndexTest() {
-        ImplicitTreapPair<Integer> testPair = split(simpleT, 0);
+        Pair<ImplicitTreap<Integer>> testPair = split(simpleT, 0);
         assertNull(testPair.getFirst());
         assertEquals("Wrong Size of splitted treap 1", 0, size(testPair.getFirst()));
         assertEquals("Wrong Size of splitted treap 2", 1, size(testPair.getSecond()));
@@ -104,7 +103,7 @@ public class ImplicitTreapSmallTest {
 
     @Test
     public void nullSplitByNodeTest() {
-        ImplicitTreapPair<Integer> testPair = split(nullT);
+        Pair<ImplicitTreap<Integer>> testPair = split(nullT);
         assertNull(testPair.getFirst());
         assertEquals("Wrong Size of splitted treap 1", 0, size(testPair.getFirst()));
         assertNull(testPair.getSecond());
@@ -113,7 +112,7 @@ public class ImplicitTreapSmallTest {
 
     @Test
     public void simpleSplitByNodeTest() {
-        ImplicitTreapPair<Integer> testPair = split(simpleT);
+        Pair<ImplicitTreap<Integer>> testPair = split(simpleT);
         assertEquals("Wrong Size of splitted treap 1", 1, size(testPair.getFirst()));
         assertNull(testPair.getSecond());
         assertEquals("Wrong Size of splitted treap 2", 0, size(testPair.getSecond()));
@@ -122,7 +121,7 @@ public class ImplicitTreapSmallTest {
     @Test
     public void simpleMergeSplitTest() {
         ImplicitTreap<Integer> test = merge(simpleT, simpleT1);
-        ImplicitTreapPair<Integer> testPair = split(test, 1);
+        Pair<ImplicitTreap<Integer>> testPair = split(test, 1);
         assertEquals(simpleT.getY(), testPair.getFirst().getY());
         assertEquals(simpleT1.getY(), testPair.getSecond().getY());
     }
@@ -130,7 +129,7 @@ public class ImplicitTreapSmallTest {
     @Test
     public void simpleSplitMergeTest() {
         ImplicitTreap<Integer> res1 = merge(simpleT, simpleT1);
-        ImplicitTreapPair<Integer> testPair = split(merge(simpleT, simpleT1), 1);
+        Pair<ImplicitTreap<Integer>> testPair = split(merge(simpleT, simpleT1), 1);
         ImplicitTreap<Integer> res2 = merge(testPair.getFirst(), testPair.getSecond());
         assertEquals("Sizes not equal", size(res1), size(res2));
         assertEquals("Priority changed", res1.getY(), res2.getY());

@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.ifmo.ads.romashkina.euler.EulerTourTree;
 import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
-import ru.ifmo.ads.romashkina.treap.ImplicitTreapPair;
+import ru.ifmo.ads.romashkina.utils.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +124,7 @@ public class GraphTest {
         b.setIn(new ImplicitTreap<>(EulerTourTree.random.nextLong(), b));
         ImplicitTreap<Vertex> firstLink = link(a, b);
         List<Vertex> firstLinkVerticies = new ArrayList<>(makeValueList(firstLink));
-        ImplicitTreapPair<Vertex> cutResult = cut(a, b);
+        Pair<ImplicitTreap<Vertex>> cutResult = cut(a, b);
         assertEquals(a, cutResult.getFirst().getValue());
         assertEquals(b, cutResult.getSecond().getValue());
         ImplicitTreap<Vertex> secondLink = link(cutResult.getFirst().getValue(), cutResult.getSecond().getValue());

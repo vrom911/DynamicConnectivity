@@ -1,5 +1,7 @@
 package ru.ifmo.ads.romashkina.treap;
 
+import ru.ifmo.ads.romashkina.utils.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -113,8 +115,8 @@ public class ImplicitTreap<T> {
         return result;
     }
 
-    public static <E> ImplicitTreapPair<E> split(ImplicitTreap<E> t, int k) {
-        ImplicitTreapPair<E> result = new ImplicitTreapPair<>(null, null);
+    public static <E> Pair<ImplicitTreap<E>> split(ImplicitTreap<E> t, int k) {
+        Pair<ImplicitTreap<E>> result = new Pair<>(null, null);
         if (t == null) return result;
 
         int ind = size(t.left) + 1;
@@ -180,17 +182,17 @@ public class ImplicitTreap<T> {
         return isRoot(node) ? node : getRoot(node.parent);
     }
 
-    public static <E> ImplicitTreapPair<E> split(ImplicitTreap<E> node) {
+    public static <E> Pair<ImplicitTreap<E>> split(ImplicitTreap<E> node) {
         return split(getRoot(node), findIndex(node));
     }
 
     public static <E> ImplicitTreap<E> add(ImplicitTreap<E> t, int k, E value) {
-        ImplicitTreapPair<E> splitRes = split(t, k);
+        Pair<ImplicitTreap<E>> splitRes = split(t, k);
         return merge(merge(splitRes.getFirst(), new ImplicitTreap<>(value)), splitRes.getSecond());
     }
 
     public static <E> ImplicitTreap<E> remove(ImplicitTreap<E> tree, int k) {
-        ImplicitTreapPair<E> splitRes = split(tree, k);
+        Pair<ImplicitTreap<E>> splitRes = split(tree, k);
         return merge(splitRes.getFirst(), split(splitRes.getSecond(), 1).getSecond());
     }
 

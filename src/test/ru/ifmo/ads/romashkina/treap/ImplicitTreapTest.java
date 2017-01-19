@@ -1,6 +1,7 @@
 package ru.ifmo.ads.romashkina.treap;
 
 import org.junit.Test;
+import ru.ifmo.ads.romashkina.utils.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class ImplicitTreapTest {
 
         for (int i = 0; i < RUN; i++) {
             int index = r.nextInt(TREAP_SIZE);
-            ImplicitTreapPair<Integer> tPair = split(t, index);
+            Pair<ImplicitTreap<Integer>> tPair = split(t, index);
             assertEquals(array.subList(0, index), makeValueList(tPair.getFirst()));
             assertEquals(array.subList(index, array.size()), makeValueList(tPair.getSecond()));
             t = merge(tPair.getFirst(), tPair.getSecond());

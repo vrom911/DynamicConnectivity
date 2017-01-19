@@ -2,7 +2,7 @@ package ru.ifmo.ads.romashkina.graph;
 
 import ru.ifmo.ads.romashkina.euler.EulerTourTree;
 import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
-import ru.ifmo.ads.romashkina.treap.ImplicitTreapPair;
+import ru.ifmo.ads.romashkina.utils.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +13,8 @@ import static org.junit.Assert.assertEquals;
 import static ru.ifmo.ads.romashkina.euler.EulerTourTree.cut;
 import static ru.ifmo.ads.romashkina.euler.EulerTourTree.link;
 import static ru.ifmo.ads.romashkina.euler.EulerUtility.findEulerPath;
-import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.*;
+import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.makeValueList;
+import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.mergeTreapList;
 
 public class GraphTestUtility {
 
@@ -90,7 +91,7 @@ public class GraphTestUtility {
     public static void handCutTest(int edge, String l, String result1, String result2) {
         List<Vertex> eulerTour1 = createVerticesFromLabels(l.split(" "));
         makeEulerPathTreeFromList(eulerTour1);
-        ImplicitTreapPair<Vertex> cutResult = cut(eulerTour1.get(edge), eulerTour1.get(edge + 1));
+        Pair<ImplicitTreap<Vertex>> cutResult = cut(eulerTour1.get(edge), eulerTour1.get(edge + 1));
         assertEquals(result1, labelsFromTour(cutResult.getFirst()));
         assertEquals(result2, labelsFromTour(cutResult.getSecond()));
     }

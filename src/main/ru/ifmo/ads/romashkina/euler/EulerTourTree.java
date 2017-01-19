@@ -2,7 +2,7 @@ package ru.ifmo.ads.romashkina.euler;
 
 import ru.ifmo.ads.romashkina.graph.Vertex;
 import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
-import ru.ifmo.ads.romashkina.treap.ImplicitTreapPair;
+import ru.ifmo.ads.romashkina.utils.Pair;
 
 import java.util.Random;
 
@@ -38,14 +38,14 @@ public class EulerTourTree {
         if (areConnected(u, v)) return null;
 
         // разрезаем обход первого эйлерового дерева по вершине v; обновляем ссылку у ребра v -> x на новый клон v
-        ImplicitTreapPair<Vertex> vPair = split(v.getIn());
+        Pair<ImplicitTreap<Vertex>> vPair = split(v.getIn());
         ImplicitTreap<Vertex> beforeV = vPair.getFirst();
         ImplicitTreap<Vertex> afterV  = vPair.getSecond();
         ImplicitTreap<Vertex> vNew = new ImplicitTreap<>(random.nextLong(), v);
         afterV = updateAfterVertex(v, afterV, vNew);
 
         // разрезаем обход второго эйлерового дерева по вершине u; обновляем ссылку у ребра u -> y на новый клон u
-        ImplicitTreapPair<Vertex> uPair = split(u.getIn());
+        Pair<ImplicitTreap<Vertex>> uPair = split(u.getIn());
         ImplicitTreap<Vertex> beforeU = uPair.getFirst();
         ImplicitTreap<Vertex> afterU = uPair.getSecond();
         ImplicitTreap<Vertex> uNew = new ImplicitTreap<>(random.nextLong(), u);
@@ -72,7 +72,7 @@ public class EulerTourTree {
         return merge(vu, uv);
     }
 
-    public static ImplicitTreapPair<Vertex> cut(Vertex v, Vertex u) {
+    public static Pair<ImplicitTreap<Vertex>> cut(Vertex v, Vertex u) {
         if (!v.hasEdge(u)) return null;
 
 
@@ -83,7 +83,7 @@ public class EulerTourTree {
         }
 
         ImplicitTreap<Vertex> part1 = split(vInVU).getFirst();
-        ImplicitTreapPair<Vertex> other = split(uInUV);
+        Pair<ImplicitTreap<Vertex>> other = split(uInUV);
         ImplicitTreap<Vertex> part2 = other.getFirst();
         ImplicitTreap<Vertex> part3 = other.getSecond();
 
@@ -94,7 +94,7 @@ public class EulerTourTree {
         }
 
         removeOrientedEdge(v, u);
-        return new ImplicitTreapPair<>(merge(part1, part3), part2);
+        return new Pair<>(merge(part1, part3), part2);
     }
 
     public static boolean areConnected(Vertex v, Vertex u) {
