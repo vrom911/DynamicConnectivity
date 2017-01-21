@@ -1,32 +1,52 @@
 package ru.ifmo.ads.romashkina.graph;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+
+import static ru.ifmo.ads.romashkina.graph.GraphUtility.addOrientedEdge;
 
 public class Graph {
-    private List<Vertex> vertex;
+    private Map<String, Vertex> vertex;
 
-    public Graph(List<Vertex> vertex) {
+    public Graph(Map<String, Vertex> vertex) {
         this.vertex = vertex;
     }
 
-    public List<Vertex> getVertex() {
-        return this.vertex;
+    public Graph(List<UndirectedEdge> edges) {
+        vertex = new HashMap<>();
+        for (UndirectedEdge e : edges) {
+            addDirectedEdge(e.getFrom(), e.getTo());
+        }
     }
 
-    public Vertex getVertex(int i) {
-        return this.vertex.get(i);
+    public Map<String, Vertex> getVertexMap() {
+        return vertex;
+    }
+
+    public Vertex getVertex(String label) {
+        return vertex.get(label);
     }
 
     public Vertex getRandomVertex() {
         Random r = new Random();
-        return this.vertex.get(r.nextInt(getVertexNum()));
+        Vertex[] v = (Vertex[]) vertex.values().toArray();
+        return v[r.nextInt(getVertexNum())];
     }
 
     public int getVertexNum() {
         return vertex.size();
     }
 
+    public void addAllVertices(Graph g) {
+        vertex.putAll(g.getVertexMap());
+    }
+
+    public void addDirectedEdge(String vLabel, String uLabel) {
+        Vertex v = vertex.putIfAbsent(vLabel, new Vertex(vLabel));
+        if (!uLabel.equals("")) {
+            Vertex u = vertex.putIfAbsent(uLabel, new Vertex(uLabel));
+            addOrientedEdge(v, u);
+        }
+    }
     @Override
     public String toString() {
         return "Graph{ " + "vertex = " + vertex + '}';

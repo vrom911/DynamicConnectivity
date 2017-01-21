@@ -12,7 +12,7 @@ import java.util.StringJoiner;
 import static org.junit.Assert.assertEquals;
 import static ru.ifmo.ads.romashkina.euler.EulerTourTree.cut;
 import static ru.ifmo.ads.romashkina.euler.EulerTourTree.link;
-import static ru.ifmo.ads.romashkina.euler.EulerUtility.findEulerPath;
+import static ru.ifmo.ads.romashkina.euler.EulerUtility.findEulerPathForVertex;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.makeValueList;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.mergeTreapList;
 
@@ -36,12 +36,12 @@ public class GraphTestUtility {
     }
 
     public static ImplicitTreap<Vertex> makeEulerPathTree(Graph graph, Vertex u) {
-        return findEulerPath(u, graph.getVertexNum());
+        return findEulerPathForVertex(u, graph.getVertexNum());
     }
 
-    public static ImplicitTreap<Vertex> makeEulerPathTreeRandomVertex(Graph graph) {
-        return  makeEulerPathTree(graph, graph.getRandomVertex());
-    }
+//    public static ImplicitTreap<Vertex> makeEulerPathTreeRandomVertex(Graph graph) {
+//        return  makeEulerPathTree(graph, graph.getRandomVertex());
+//    }
 
     public static ImplicitTreap<Vertex> makeEulerFromString(String l) {
         return makeEulerPathTreeFromList(createVerticesFromLabels(l.split(" ")));
@@ -56,7 +56,7 @@ public class GraphTestUtility {
             if (vertexMap.containsKey(label)) {
                 v = vertexMap.get(label);
             } else {
-                v = new Vertex(label, i);
+                v = new Vertex(label);
                 vertexMap.put(label, v);
             }
             vertices.add(v);

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 public class GraphUtility {
 
@@ -24,15 +25,30 @@ public class GraphUtility {
         }
     }
 
-    public static List<Vertex> readGraph(String fileName) {
-        List<Vertex> vertex;
+    public static List<UndirectedEdge> readGraphEdges(String fileName) {
+        List<UndirectedEdge> edges = new ArrayList<>();
+        try (FileReader fInput = new FileReader(fileName);
+             BufferedReader inputBuf = new BufferedReader(fInput)
+        ) {
+            String row;
+            while ((row = inputBuf.readLine()) != null) {
+                edges.add(new UndirectedEdge(row));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return edges;
+    }
+
+    public static Map<String, Vertex> readGraph(String fileName) {
+        Map<String, Vertex> vertex;
         try (FileReader fInput = new FileReader(fileName);
              BufferedReader inputBuf = new BufferedReader(fInput)
         ) {
 //            read number of vertex and add them in the list
             String row = inputBuf.readLine();
             int vSize = Integer.parseInt(row);
-            vertex = new ArrayList<>(vSize);
+            vertex = new HashMap<>(vSize);
             Map<String, Integer> labelToNumber = new HashMap<>();
             int vertexCounter = 0;
             for (int i = 0; i < vSize; i++) {
@@ -41,16 +57,14 @@ public class GraphUtility {
                     labelToNumber.put(label, vertexCounter);
                     vertexCounter++;
                 }
-
-                int number = labelToNumber.get(label);
-                vertex.add(new Vertex(label, number));
+                vertex.put(label, new Vertex(label));
             }
 
 //            read and add edges for each vertex
             while ((row = inputBuf.readLine()) != null) {
                 String[] edge = row.split(" ");
-                Vertex from = vertex.get(labelToNumber.get(edge[0]));
-                Vertex to = vertex.get(labelToNumber.get(edge[1]));
+                Vertex from = vertex.get(edge[0]);
+                Vertex to = vertex.get(edge[1]);
                 addOrientedEdge(from, to);
             }
         } catch (IOException e) {
@@ -61,7 +75,52 @@ public class GraphUtility {
     }
 
     public static Graph makeGraphFromFile(String filename) {
-        List<Vertex> vertex = readGraph(filename);
+        Map<String, Vertex> vertex = readGraph(filename);
         return vertex == null ? null : new Graph(vertex);
+    }
+
+    public static Map<String, Vertex> makeVertexMap(Map<String, Integer> vertex) {
+        Map<String, Vertex> gVertex = new HashMap<>();
+        for (String label : vertex.keySet()) {
+            gVertex.put(label, new Vertex(label));
+        }
+        return gVertex;
+    }
+
+    public static GraphWithMST kruskalFindMST(List<UndirectedEdge> edges) {
+        Map<String, Integer> vertex = verticesFromEdges(edges);
+
+        Graph mst = new Graph(makeVertexMap(vertex));
+        Graph other = new Graph(makeVertexMap(vertex));
+
+        DSU dsu = new DSU(vertex.size());
+
+        for (UndirectedEdge e : edges) {
+            if (!e.getTo().equals("")) {
+                int from = vertex.get(e.getFrom());
+                int to = vertex.get(e.getTo());
+                if (!dsu.connected(from, to)) {
+                    mst.addDirectedEdge(e.getFrom(), e.getTo());
+                    dsu.union(from, to);
+                } else {
+                    other.addDirectedEdge(e.getFrom(), e.getTo());
+                }
+            }
+
+        }
+        return new GraphWithMST(mst, other);
+    }
+
+    public static Map<String, Integer> verticesFromEdges(List<UndirectedEdge> edges) {
+        Map<String, Integer> v = new HashMap<>();
+        int[] count = new int[1];
+        Function<String, Integer> counter = value -> count[0]++;
+        for (UndirectedEdge e : edges) {
+            v.computeIfAbsent(e.getFrom(), counter);
+            if (!e.getTo().equals("")) {
+                v.computeIfAbsent(e.getTo(), counter);
+            }
+        }
+        return v;
     }
 }

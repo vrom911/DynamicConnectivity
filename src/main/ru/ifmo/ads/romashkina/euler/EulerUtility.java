@@ -8,10 +8,7 @@ import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 import static ru.ifmo.ads.romashkina.graph.GraphUtility.readGraph;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.mergeTreapList;
@@ -19,7 +16,7 @@ import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.mergeTreapList;
 public class EulerUtility {
 
     public static List<Graph> readGraphList(String fileName) {
-        List<Graph> graphs = null;
+        List<Graph> graphs;
 
         try (FileReader fInput = new FileReader(fileName);
              BufferedReader inputBuf = new BufferedReader(fInput)
@@ -38,15 +35,17 @@ public class EulerUtility {
         return graphs;
     }
 
-    public static ImplicitTreap<Vertex> findEulerPath(Vertex u, int vertexNum) {
+    public static ImplicitTreap<Vertex> findEulerPathForVertex(Vertex u, int vertexNum) {
         Deque<Vertex> tour = new ArrayDeque<>();
         tour.addLast(u);
-        List<Vertex> result = new ArrayList<>();
-        List<ImplicitTreap<Vertex>> resTreaps = new ArrayList<>();
+        List<ImplicitTreap<Vertex>> result = new ArrayList<>();
+        Map<Vertex, Integer> vNums = new HashMap<>();
+        final int[] counter = new int[1];
         int[] edgeCounters = new int[vertexNum];
+
         while (!tour.isEmpty()) {
             Vertex w = tour.peekLast();
-            int wNum = w.getNumber();
+            int wNum = vNums.computeIfAbsent(w, value -> counter[0]++);
             int i = edgeCounters[wNum];
 
             if (i < w.getEdgesNumber()) {
@@ -57,18 +56,27 @@ public class EulerUtility {
 
             if (w.equals(tour.peekLast())) {
                 tour.pollLast();
-                result.add(w);
                 ImplicitTreap<Vertex> e = new ImplicitTreap<>(EulerTourTree.random.nextLong(), w);
-                resTreaps.add(e);
+                result.add(e);
                 w.setIn(e);
-                int curResTreapsSize = resTreaps.size() - 1;
+
+                int curResTreapsSize = result.size() - 1;
                 if (curResTreapsSize > 0) {
-                    Edge edge = result.get(curResTreapsSize - 1).getEdgeTo(w);
-                    edge.setLinksToNodes(resTreaps.get(curResTreapsSize - 1), e);
+                    Edge edge = result.get(curResTreapsSize - 1).getValue().getEdgeTo(w);
+                    edge.setLinksToNodes(result.get(curResTreapsSize - 1), e);
                 }
             }
         }
-        return mergeTreapList(resTreaps);
+
+        return mergeTreapList(result);
     }
 
+    public static void findEulerPathForGraph(Graph graph) {
+        int n = graph.getVertexNum();
+        for (Vertex v : graph.getVertexMap().values()) {
+            if (v.getIn() != null) {
+                findEulerPathForVertex(v, n);
+            }
+        }
+    }
 }

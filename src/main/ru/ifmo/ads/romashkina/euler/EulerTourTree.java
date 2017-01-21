@@ -11,20 +11,10 @@ import static ru.ifmo.ads.romashkina.graph.GraphUtility.removeOrientedEdge;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.*;
 
 /*
- * 3. Написать алгоритм поиска остовного леса в графе (именно лес)
- * 4. Создать структуру FastDynamicConnectivity, которая хранит список ImplicitTreap
- *    + статический метод, принимающий список графов (деревьев) и строящий по ним список деревьев эйлерового обхода
- *    + внутри себя хранит HashSet корней деревьев эйлерового обхода
- * 5. Реализовать функцию link для DynamicConnectivity
- *    + вынимаешь (получаешь с удалением) деревья обоих вершин (если не связаны), объединяешь и добавляешь новое
- * 6. Реализуй класс NaiveDynamicConnectivity: тупая реализация алгоритма полностью
- *    + удаление ребра и добавление очевидно
- *    + для проверки на связность -- dfs
- * 7. 5 и 6 надо делать в отдельном пакете. Надо создать интерфейс DynamicConnectivity с 3мя методами
+ * 
  */
 public class EulerTourTree {
     public static Random random = new Random(123456);
-
 
     private static ImplicitTreap<Vertex> updateAfterVertex(Vertex vertex, ImplicitTreap<Vertex> afterVertex, ImplicitTreap<Vertex> vertexNew) {
         if (fullSize(afterVertex) > 0) {

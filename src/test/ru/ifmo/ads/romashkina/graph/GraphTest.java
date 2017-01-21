@@ -10,12 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static ru.ifmo.ads.romashkina.euler.EulerTourTree.cut;
 import static ru.ifmo.ads.romashkina.euler.EulerTourTree.link;
-import static ru.ifmo.ads.romashkina.euler.EulerUtility.findEulerPath;
+import static ru.ifmo.ads.romashkina.euler.EulerUtility.findEulerPathForVertex;
 import static ru.ifmo.ads.romashkina.graph.GraphTestUtility.*;
-import static ru.ifmo.ads.romashkina.graph.GraphUtility.makeGraphFromFile;
+import static ru.ifmo.ads.romashkina.graph.GraphUtility.*;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.makeValueList;
 
 public class GraphTest {
@@ -29,25 +28,25 @@ public class GraphTest {
         Graph graph1 = makeGraphFromFile("graphTest.txt");
         Graph graph2 = makeGraphFromFile("graphTest1.txt");
 
-        ImplicitTreap<Vertex> res1 = makeEulerPathTree(graph1, graph1.getVertex(2));
-        ImplicitTreap<Vertex> res2 = makeEulerPathTree(graph2, graph2.getVertex(0));
+        ImplicitTreap<Vertex> res1 = makeEulerPathTree(graph1, graph1.getVertex("c"));
+        ImplicitTreap<Vertex> res2 = makeEulerPathTree(graph2, graph2.getVertex("e"));
 
-        assertEquals("c d c b c a c g e g f g h g c", labelsFromTour(link(graph1.getVertex(2), graph2.getVertex(2))));
+        assertEquals("c d c b c a c g e g h g f g c", labelsFromTour(link(graph1.getVertex("c"), graph2.getVertex("g"))));
 
     }
 
     @Test
     public void eulerTourTest() {
         Graph graph1 = makeGraphFromFile("graphTest.txt");
-        assertEquals("a c d c b c a", labelsFromVertices(makeValueList(findEulerPath(graph1.getVertex(0), graph1.getVertexNum()))));
+        assertEquals("a c d c b c a", labelsFromVertices(makeValueList(findEulerPathForVertex(graph1.getVertex("a"), graph1.getVertexNum()))));
     }
 
     @Test
     public void oneVertexLinkTest() {
-        Vertex v = new Vertex("v", 0);
+        Vertex v = new Vertex("v");
         ImplicitTreap<Vertex> vTree = new ImplicitTreap<>(v);
         v.setIn(vTree);
-        Vertex u = new Vertex("u", 0);
+        Vertex u = new Vertex("u");
         ImplicitTreap<Vertex> uTree = new ImplicitTreap<>(u);
         u.setIn(uTree);
         ImplicitTreap<Vertex> testVtoU = link(v, u);
@@ -118,9 +117,9 @@ public class GraphTest {
 
     @Test
     public void linkCutLinkTest() {
-        Vertex a = new Vertex("a", 0);
+        Vertex a = new Vertex("a");
         a.setIn(new ImplicitTreap<>(EulerTourTree.random.nextLong(), a));
-        Vertex b = new Vertex("b", 1);
+        Vertex b = new Vertex("b");
         b.setIn(new ImplicitTreap<>(EulerTourTree.random.nextLong(), b));
         ImplicitTreap<Vertex> firstLink = link(a, b);
         List<Vertex> firstLinkVerticies = new ArrayList<>(makeValueList(firstLink));
@@ -129,6 +128,14 @@ public class GraphTest {
         assertEquals(b, cutResult.getSecond().getValue());
         ImplicitTreap<Vertex> secondLink = link(cutResult.getFirst().getValue(), cutResult.getSecond().getValue());
         assertEquals(firstLinkVerticies, makeValueList(secondLink));
-        assertTrue(firstLink.getValue().getEdges().keySet().contains(b));
+//        assertTrue(firstLink.getValue().getEdges().keySet().contains(b));
+    }
+
+    @Test
+    public void undirectedEdgesTest() {
+        List<UndirectedEdge> edges = readGraphEdges("undirectedEdgesTest");
+        System.out.println(kruskalFindMST(edges));
+//        System.out.println(Integer.highestOneBit(15));
+
     }
 }

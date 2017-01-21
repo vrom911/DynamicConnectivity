@@ -6,13 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Vertex {
-    private int number;
     private String label;
     private Map<Vertex, Edge> edges;
     private ImplicitTreap<Vertex> in;
 
-    public Vertex(String label, int number) {
-        this.number = number;
+    public Vertex(String label) {
         this.label = label;
         this.edges = new HashMap<>();
     }
@@ -27,10 +25,6 @@ public class Vertex {
 
     public String getLabel() {
         return label;
-    }
-
-    public int getNumber() {
-        return number;
     }
 
     public boolean hasLabel(String l) {
@@ -67,10 +61,7 @@ public class Vertex {
 
     @Override
     public String toString() {
-//        StringBuilder edges =
-        return "{ " + label + ", num: " + number +
-                ", edges=" + edges.values() +
-                " }\n";
+        return "{ " + label + ", edges=" + edges.values() + " }\n";
     }
 
     @Override
@@ -79,16 +70,11 @@ public class Vertex {
         if (o == null || getClass() != o.getClass()) return false;
 
         Vertex vertex = (Vertex) o;
-
-        if (number != vertex.number) return false;
-//        if (!edges.equals(vertex.edges)) return false;
         return label.equals(vertex.label);
     }
 
     @Override
     public int hashCode() {
-        int result = number;
-        result = 31 * result + label.hashCode();
-        return result;
+        return label.hashCode();
     }
 }
