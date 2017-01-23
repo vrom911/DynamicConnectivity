@@ -4,6 +4,11 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.ifmo.ads.romashkina.utils.Pair;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringJoiner;
+
 import static org.junit.Assert.*;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.*;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreapTestUtility.*;
@@ -25,6 +30,28 @@ public class ImplicitTreapSmallTest {
     @Test
     public void simpleSizeTest() {
         assertEquals(1, size(simpleT));
+    }
+
+    @Test
+    public void simpleIteratorTest(){
+        StringJoiner sj = new StringJoiner(" ");
+        ImplicitTreap<Integer> tree = merge(simpleT, simpleT1);
+        Iterator i = tree.iterator();
+        while (i.hasNext()) {
+            sj.add(i.next().toString());
+        }
+        assertEquals("0 1", sj.toString());
+    }
+
+    @Test
+    public void simpleIteratorTest2(){
+        List<Integer> array = createArray(100);
+        ImplicitTreap<Integer> tree = makeFromArray(array);
+        List<Integer> result = new ArrayList<>(100);
+        for (Integer aTree : tree) {
+            result.add(aTree);
+        }
+        assertEquals(array, result);
     }
 
     @Test

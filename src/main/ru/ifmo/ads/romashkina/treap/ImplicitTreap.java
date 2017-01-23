@@ -3,12 +3,13 @@ package ru.ifmo.ads.romashkina.treap;
 import ru.ifmo.ads.romashkina.utils.Pair;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
 
-public class ImplicitTreap<T> {
+public class ImplicitTreap<T> implements Iterable<T>{
     private long y;
     private ImplicitTreap<T> left;
     private ImplicitTreap<T> right;
@@ -73,10 +74,6 @@ public class ImplicitTreap<T> {
         return value;
     }
 
-    public void setValue(T value) {
-        this.value = value;
-    }
-
     public static <E> int size(ImplicitTreap<E> t) {
         return t == null ? 0 : t.treeSize;
     }
@@ -89,9 +86,17 @@ public class ImplicitTreap<T> {
         treeSize = size(left) + size(right) + 1;
     }
 
+    public  boolean isBigger(ImplicitTreap<T> t) {
+        return fullSize(this) > fullSize(t);
+    }
     @Override
     public String toString() {
         return "{ value = " + value + " y = " + y + ", treeSize = " + treeSize + " " + isRoot(this) + '}';
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ImplicitTreapIterator<>(this);
     }
 
     public static <E> ImplicitTreap<E> merge(ImplicitTreap<E> l, ImplicitTreap<E> r) {
@@ -135,7 +140,7 @@ public class ImplicitTreap<T> {
         return result;
     }
 
-    private static <E> boolean isRoot(ImplicitTreap<E> node) {
+    public static <E> boolean isRoot(ImplicitTreap<E> node) {
         return node == null || node.parent == null;
     }
 
@@ -165,7 +170,6 @@ public class ImplicitTreap<T> {
 
     public static <E, R> R getByIndex(ImplicitTreap<E> tree, Function<ImplicitTreap<E>, R> f, int i) {
         if (tree == null || fullSize(tree) < i) return null;
-        // TODO: проверить в границах i
         ImplicitTreap<E> res = getByIndexFromRoot(getRoot(tree), i);
         return res == null ? null : f.apply(res);
     }
