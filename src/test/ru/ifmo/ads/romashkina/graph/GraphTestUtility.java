@@ -18,32 +18,29 @@ import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.mergeTreapList;
 
 public class GraphTestUtility {
 
-    public static ImplicitTreap<Vertex> makeEulerPathTreeFromList(List<Vertex> vertices) {
-        List<ImplicitTreap<Vertex>> vertexTreaps = new ArrayList<>(vertices.size());
-        for (Vertex v : vertices) {
-            ImplicitTreap<Vertex> curVertexTreap = new ImplicitTreap<>(EulerTourTree.random.nextLong(), v);
-            vertexTreaps.add(curVertexTreap);
-            v.setIn(curVertexTreap);
+    public static ImplicitTreap<TreapEdge> makeEulerPathTreeFromList(List<Vertex> vertices) {
+        List<ImplicitTreap<TreapEdge>> edgeTreaps = new ArrayList<>(vertices.size());
+        for (int i = 1; i < vertices.size(); i++) {
+            Vertex previousVertex = vertices.get(i - 1);
+            TreapEdge treapEdge = new TreapEdge(previousVertex, vertices.get(i));
+            ImplicitTreap<TreapEdge> tree = new ImplicitTreap<>(EulerTourTree.random.nextLong(), treapEdge);
+            treapEdge.setLink(tree);
+            previousVertex.addTreapEdge(treapEdge);
 
-            int  curTreapSize = vertexTreaps.size();
-            if (curTreapSize > 1) {
-                Vertex previousVertex = vertices.get(curTreapSize - 2);
-                Edge edge = new Edge(previousVertex, v, vertexTreaps.get(curTreapSize - 2), curVertexTreap);
-                previousVertex.addEdge(edge);
-            }
+            edgeTreaps.add(tree);
         }
-        return mergeTreapList(vertexTreaps);
+        return mergeTreapList(edgeTreaps);
     }
 
-    public static ImplicitTreap<Vertex> makeEulerPathTree(Graph graph, Vertex u) {
+    public static ImplicitTreap<TreapEdge> makeEulerPathTree(Graph graph, Vertex u) {
         return findEulerPathForVertex(u, graph.getVertexNum());
     }
 
-//    public static ImplicitTreap<Vertex> makeEulerPathTreeRandomVertex(Graph graph) {
-//        return  makeEulerPathTree(graph, graph.getRandomVertex());
-//    }
+    public static ImplicitTreap<TreapEdge> makeEulerPathTreeRandomVertex(Graph graph) {
+        return  makeEulerPathTree(graph, graph.getRandomVertex());
+    }
 
-    public static ImplicitTreap<Vertex> makeEulerFromString(String l) {
+    public static ImplicitTreap<TreapEdge> makeEulerFromString(String l) {
         return makeEulerPathTreeFromList(createVerticesFromLabels(l.split(" ")));
     }
 
@@ -72,11 +69,24 @@ public class GraphTestUtility {
         return labels.toString();
     }
 
-    public static String labelsFromTour(ImplicitTreap<Vertex> tour) {
-        return labelsFromVertices(makeValueList(tour));
+    public static String labelsFromEdges(List<TreapEdge> treapEdges) {
+
+        StringJoiner labels = new StringJoiner(" ");
+
+        for (TreapEdge e : treapEdges) {
+            labels.add(e.getFrom().getLabel());
+        }
+        if (treapEdges.size() > 0) {
+            labels.add(treapEdges.get(treapEdges.size() - 1).getTo().getLabel());
+        }
+        return labels.toString();
     }
 
-    public static ImplicitTreap<Vertex> handLinkTest(String l1, String l2, int v1, int v2) {
+    public static String labelsFromTour(ImplicitTreap<TreapEdge> tour) {
+        return labelsFromEdges(makeValueList(tour));
+    }
+
+    public static ImplicitTreap<TreapEdge> handLinkTest(String l1, String l2, int v1, int v2) {
         List<Vertex> eulerTour1 = createVerticesFromLabels(l1.split(" "));
         List<Vertex> eulerTour2 = createVerticesFromLabels(l2.split(" "));
         makeEulerPathTreeFromList(eulerTour1);
@@ -91,7 +101,7 @@ public class GraphTestUtility {
     public static void handCutTest(int edge, String l, String result1, String result2) {
         List<Vertex> eulerTour1 = createVerticesFromLabels(l.split(" "));
         makeEulerPathTreeFromList(eulerTour1);
-        Pair<ImplicitTreap<Vertex>> cutResult = cut(eulerTour1.get(edge), eulerTour1.get(edge + 1));
+        Pair<ImplicitTreap<TreapEdge>> cutResult = cut(eulerTour1.get(edge), eulerTour1.get(edge + 1));
         assertEquals(result1, labelsFromTour(cutResult.getFirst()));
         assertEquals(result2, labelsFromTour(cutResult.getSecond()));
     }
