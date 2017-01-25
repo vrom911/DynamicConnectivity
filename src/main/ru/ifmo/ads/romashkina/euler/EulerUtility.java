@@ -75,7 +75,8 @@ public class EulerUtility {
     public static void findEulerPathForGraph(Graph graph) {
         int n = graph.getVertexNum();
         for (Vertex v : graph.getVertexMap().values()) {
-            if (v.getRandomTreapEdge().getLink() == null) {
+
+            if (v.getRandomTreapEdge() != null && v.getRandomTreapEdge().getLink() == null) {
                 findEulerPathForVertex(v, n);
             }
         }

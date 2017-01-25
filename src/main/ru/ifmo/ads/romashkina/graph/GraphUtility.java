@@ -59,7 +59,6 @@ public class GraphUtility {
                 }
                 vertex.put(label, new Vertex(label));
             }
-
 //            read and add edges for each vertex
             while ((row = inputBuf.readLine()) != null) {
                 String[] edge = row.split(" ");
@@ -106,7 +105,6 @@ public class GraphUtility {
                     other.addEdge(e.getFrom(), e.getTo());
                 }
             }
-
         }
         return new Level(mst, other);
     }

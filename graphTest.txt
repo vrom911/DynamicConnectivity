@@ -1,7 +1,8 @@
-3
+4
 a
 b
 c
-a b
-b c
-c a
+d
+a c
+c b
+c d

@@ -1,24 +1,50 @@
 package ru.ifmo.ads.romashkina.dynamicConnectivity;
 
+import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
-import ru.ifmo.ads.romashkina.graph.Graph;
-import ru.ifmo.ads.romashkina.graph.Vertex;
+import org.junit.runners.MethodSorters;
+import ru.ifmo.ads.romashkina.graph.Edge;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
+import static ru.ifmo.ads.romashkina.dynamicConnectivity.DCTestUtility.*;
 
+@FixMethodOrder(MethodSorters.JVM)
 public class DynamicConnectivityTest {
 
-    @Test
-    public void kruskalAlgoTest() {
-        Vertex a = new Vertex("a");
-        Vertex b = new Vertex("b");
-        a.addEdge(b);
-        Map<String, Vertex> list = new HashMap<>();
-        list.put("a", a);
-        list.put("b", b);
-        Graph graph = new Graph(list);
-//        System.out.println(kruskalFindMST(graph));
+    @BeforeClass
+    public static void setUp() {
+        setting();
     }
 
+    @Test
+    public void initTest() {
+        settingUp(10, 50);
+        assertEquals(makeEdgeListDC(ndc), makeEdgeListDC(fdc));
+    }
+
+    @Test
+    public void checkFiveVertexTest() {
+        checkFromMap(5, 100000);
+    }
+
+    @Test
+    public void check10VertexTest() {
+        checkFromMap(10, 25000);
+    }
+
+    @Test
+    public void fewOperations() {
+        settingUp(100, 500);
+        for (int i = 0; i < 20000; i++) {
+            Edge e = edges.get(i % edges.size());
+            if (e.getTo().equals("")) nextOperationBoth(e.getFrom(), e.getTo());
+        }
+        assertEquals(makeEdgeListDC(ndc), makeEdgeListDC(fdc));
+    }
+
+    @Test
+    public void checkThousandVertexTest() {
+        checkFromMap(1000);
+    }
 }
