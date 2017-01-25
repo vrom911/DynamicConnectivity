@@ -5,7 +5,7 @@ public class Stuff {
     // TODO: bitwise operations
     public static int log(int num) {
         int i, n = 1;
-        for (i = 0; i < num / 2; i++) {
+        for (i = 0; i < num; i++) {
             if (n > num) break;
             n *= 2;
         }

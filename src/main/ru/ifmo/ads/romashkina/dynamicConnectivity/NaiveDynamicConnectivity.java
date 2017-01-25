@@ -1,7 +1,7 @@
 package ru.ifmo.ads.romashkina.dynamicConnectivity;
 
+import ru.ifmo.ads.romashkina.graph.Edge;
 import ru.ifmo.ads.romashkina.graph.Graph;
-import ru.ifmo.ads.romashkina.graph.UndirectedEdge;
 import ru.ifmo.ads.romashkina.graph.Vertex;
 
 import java.util.HashSet;
@@ -18,8 +18,12 @@ public class NaiveDynamicConnectivity implements DynamicConnectivity {
         this.graph = graph;
     }
 
-    public NaiveDynamicConnectivity(List<UndirectedEdge> edges) {
+    public NaiveDynamicConnectivity(List<Edge> edges) {
         this(new Graph(edges));
+    }
+
+    public Graph getGraph() {
+        return graph;
     }
 
     @Override
@@ -47,5 +51,11 @@ public class NaiveDynamicConnectivity implements DynamicConnectivity {
     public boolean areConnected(String v, String u) {
         Set<Vertex> set = new HashSet<>();
         return dfs(set, graph.getVertex(v), graph.getVertex(u));
+    }
+
+    @Override
+    public String toString() {
+        return "ndc{" + graph +
+                '}';
     }
 }

@@ -1,8 +1,10 @@
 package ru.ifmo.ads.romashkina.graph;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static ru.ifmo.ads.romashkina.graph.GraphUtility.addOrientedEdge;
+import static ru.ifmo.ads.romashkina.graph.GraphUtility.removeOrientedEdge;
 
 public class Graph {
     private Map<String, Vertex> vertex;
@@ -11,10 +13,10 @@ public class Graph {
         this.vertex = vertex;
     }
 
-    public Graph(List<UndirectedEdge> edges) {
+    public Graph(List<Edge> edges) {
         vertex = new HashMap<>();
-        for (UndirectedEdge e : edges) {
-            addDirectedEdge(e.getFrom(), e.getTo());
+        for (Edge e : edges) {
+            addEdge(e.getFrom(), e.getTo());
         }
     }
 
@@ -36,20 +38,24 @@ public class Graph {
         return vertex.size();
     }
 
-    public void addAllVertices(Graph g) {
-        vertex.putAll(g.getVertexMap());
-    }
-
-    public void addDirectedEdge(String vLabel, String uLabel) {
-        Vertex v = vertex.putIfAbsent(vLabel, new Vertex(vLabel));
+    public void addEdge(String vLabel, String uLabel) {
+        Function<String, Vertex> f = Vertex::new;
+        Vertex v = vertex.computeIfAbsent(vLabel, f);
         if (!uLabel.equals("")) {
-            Vertex u = vertex.putIfAbsent(uLabel, new Vertex(uLabel));
+            Vertex u = vertex.computeIfAbsent(uLabel, f);
             addOrientedEdge(v, u);
         }
     }
+
+    public void removeEdge(String vLabel, String uLabel) {
+        Vertex v = vertex.get(vLabel);
+        Vertex u = vertex.get(uLabel);
+        removeOrientedEdge(v, u);
+    }
+
     @Override
     public String toString() {
-        return "Graph{ " + "vertex = " + vertex + '}';
+        return vertex.toString();
     }
 
     @Override

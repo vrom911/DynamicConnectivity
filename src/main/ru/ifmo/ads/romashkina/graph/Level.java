@@ -1,12 +1,13 @@
 package ru.ifmo.ads.romashkina.graph;
 
-public class GraphWithMST {
+public class Level {
     private Graph graphMST;
-    Graph graphOther;
+    private Graph graphOther;
 
-    public GraphWithMST(Graph graphMST, Graph graphOther) {
+    public Level(Graph graphMST, Graph graphOther) {
         this.graphMST = graphMST;
         this.graphOther = graphOther;
+
     }
 
     public Graph getGraphMST() {
@@ -19,6 +20,6 @@ public class GraphWithMST {
 
     @Override
     public String toString() {
-        return "GraphWithMST{" + graphMST + " | " + graphOther + '}';
+        return "{" + graphMST + "\n  ----|---- \n" + graphOther + '}';
     }
 }

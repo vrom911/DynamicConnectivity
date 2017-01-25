@@ -13,26 +13,26 @@ public class GraphUtility {
 
     public static void addOrientedEdge(Vertex from, Vertex to) {
         if (from != null && to != null) {
-            from.addEdge(to);
-            to.addEdge(from);
+            from.addTreapEdge(to);
+            to.addTreapEdge(from);
         }
     }
 
     public static void removeOrientedEdge(Vertex from, Vertex to) {
         if (from != null && to != null) {
-            from.removeEdgeTo(to);
-            to.removeEdgeTo(from);
+            from.removeTreapEdgeTo(to);
+            to.removeTreapEdgeTo(from);
         }
     }
 
-    public static List<UndirectedEdge> readGraphEdges(String fileName) {
-        List<UndirectedEdge> edges = new ArrayList<>();
+    public static List<Edge> readGraphEdges(String fileName) {
+        List<Edge> edges = new ArrayList<>();
         try (FileReader fInput = new FileReader(fileName);
              BufferedReader inputBuf = new BufferedReader(fInput)
         ) {
             String row;
             while ((row = inputBuf.readLine()) != null) {
-                edges.add(new UndirectedEdge(row));
+                edges.add(new Edge(row));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -87,7 +87,7 @@ public class GraphUtility {
         return gVertex;
     }
 
-    public static GraphWithMST kruskalFindMST(List<UndirectedEdge> edges) {
+    public static Level kruskalFindMST(List<Edge> edges) {
         Map<String, Integer> vertex = verticesFromEdges(edges);
 
         Graph mst = new Graph(makeVertexMap(vertex));
@@ -95,27 +95,27 @@ public class GraphUtility {
 
         DSU dsu = new DSU(vertex.size());
 
-        for (UndirectedEdge e : edges) {
+        for (Edge e : edges) {
             if (!e.getTo().equals("")) {
                 int from = vertex.get(e.getFrom());
                 int to = vertex.get(e.getTo());
                 if (!dsu.connected(from, to)) {
-                    mst.addDirectedEdge(e.getFrom(), e.getTo());
+                    mst.addEdge(e.getFrom(), e.getTo());
                     dsu.union(from, to);
                 } else {
-                    other.addDirectedEdge(e.getFrom(), e.getTo());
+                    other.addEdge(e.getFrom(), e.getTo());
                 }
             }
 
         }
-        return new GraphWithMST(mst, other);
+        return new Level(mst, other);
     }
 
-    public static Map<String, Integer> verticesFromEdges(List<UndirectedEdge> edges) {
+    public static Map<String, Integer> verticesFromEdges(List<Edge> edges) {
         Map<String, Integer> v = new HashMap<>();
         int[] count = new int[1];
         Function<String, Integer> counter = value -> count[0]++;
-        for (UndirectedEdge e : edges) {
+        for (Edge e : edges) {
             v.computeIfAbsent(e.getFrom(), counter);
             if (!e.getTo().equals("")) {
                 v.computeIfAbsent(e.getTo(), counter);

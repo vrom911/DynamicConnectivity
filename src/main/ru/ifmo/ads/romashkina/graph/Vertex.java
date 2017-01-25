@@ -1,26 +1,15 @@
 package ru.ifmo.ads.romashkina.graph;
 
-import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class Vertex {
     private String label;
-    private Map<Vertex, Edge> edges;
-    private ImplicitTreap<Vertex> in;
+    private Map<Vertex, TreapEdge> edges;
 
     public Vertex(String label) {
         this.label = label;
         this.edges = new HashMap<>();
-    }
-
-    public ImplicitTreap<Vertex> getIn() {
-        return in;
-    }
-
-    public void setIn(ImplicitTreap<Vertex> in) {
-        this.in = in;
     }
 
     public String getLabel() {
@@ -31,7 +20,7 @@ public class Vertex {
         return label.equals(l);
     }
 
-    public Map<Vertex, Edge> getEdges() {
+    public Map<Vertex, TreapEdge> getEdges() {
         return edges;
     }
 
@@ -39,29 +28,35 @@ public class Vertex {
         return edges.size();
     }
 
-    public void addEdge(Vertex to) {
-        edges.put(to, new Edge(this, to));
+    public TreapEdge getRandomTreapEdge() {
+        return edges.isEmpty() ? null : edges.entrySet().iterator().next().getValue();
     }
 
-    public void addEdge(Edge edge) {
-        edges.put(edge.getTo(), edge);
+    public TreapEdge addTreapEdge(Vertex to) {
+        TreapEdge e = new TreapEdge(this, to);
+        edges.put(to, e);
+        return e;
     }
 
-    public boolean hasEdge(Vertex u) {
+    public void addTreapEdge(TreapEdge treapEdge) {
+        edges.put(treapEdge.getTo(), treapEdge);
+    }
+
+    public boolean hasTreapEdge(Vertex u) {
         return edges.containsKey(u);
     }
 
-    public Edge getEdgeTo(Vertex to) {
+    public TreapEdge getTreapEdgeTo(Vertex to) {
         return edges.get(to);
     }
 
-    public void removeEdgeTo(Vertex to) {
+    public void removeTreapEdgeTo(Vertex to) {
         edges.remove(to);
     }
 
     @Override
     public String toString() {
-        return "{ " + label + ", edges=" + edges.values() + " }\n";
+        return edges.values() + " \n";
     }
 
     @Override

@@ -1,94 +1,95 @@
 package ru.ifmo.ads.romashkina.euler;
 
+import ru.ifmo.ads.romashkina.graph.TreapEdge;
 import ru.ifmo.ads.romashkina.graph.Vertex;
 import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
 import ru.ifmo.ads.romashkina.utils.Pair;
 
 import java.util.Random;
 
-import static ru.ifmo.ads.romashkina.graph.GraphUtility.addOrientedEdge;
 import static ru.ifmo.ads.romashkina.graph.GraphUtility.removeOrientedEdge;
 import static ru.ifmo.ads.romashkina.treap.ImplicitTreap.*;
 
-/*
- * 
- */
 public class EulerTourTree {
     public static Random random = new Random(123456);
 
-    private static ImplicitTreap<Vertex> updateAfterVertex(Vertex vertex, ImplicitTreap<Vertex> afterVertex, ImplicitTreap<Vertex> vertexNew) {
-        if (fullSize(afterVertex) > 0) {
-            Vertex nextAfterVertex = getValueByIndex(afterVertex, 1);
-            if (nextAfterVertex != null) vertex.getEdgeTo(nextAfterVertex).setFromNode(vertexNew);
-        }
-        return merge(vertexNew, afterVertex);
+    private static Pair<ImplicitTreap<TreapEdge>> updateParts(TreapEdge treapEdge) {
+        ImplicitTreap<TreapEdge> edgeTreap = treapEdge.getLink();
+        Pair<ImplicitTreap<TreapEdge>> pair = split(edgeTreap);
+        ImplicitTreap<TreapEdge> beforeEdge = pair.getFirst();
+        ImplicitTreap<TreapEdge> afterEdge = pair.getSecond();
+        beforeEdge = remove(beforeEdge, fullSize(beforeEdge) - 1);
+        ImplicitTreap<TreapEdge> newVedge = new ImplicitTreap<>(random.nextLong(), treapEdge);
+        treapEdge.setLink(newVedge);
+        afterEdge = merge(newVedge, afterEdge);
+        return new Pair<>(beforeEdge, afterEdge);
     }
 
-    public static ImplicitTreap<Vertex> link(Vertex v, Vertex u) {
+    public static ImplicitTreap<TreapEdge> link(Vertex v, Vertex u) {
         if (areConnected(u, v)) return null;
 
-        // разрезаем обход первого эйлерового дерева по вершине v; обновляем ссылку у ребра v -> x на новый клон v
-        Pair<ImplicitTreap<Vertex>> vPair = split(v.getIn());
-        ImplicitTreap<Vertex> beforeV = vPair.getFirst();
-        ImplicitTreap<Vertex> afterV  = vPair.getSecond();
-        ImplicitTreap<Vertex> vNew = new ImplicitTreap<>(random.nextLong(), v);
-        afterV = updateAfterVertex(v, afterV, vNew);
-
-        // разрезаем обход второго эйлерового дерева по вершине u; обновляем ссылку у ребра u -> y на новый клон u
-        Pair<ImplicitTreap<Vertex>> uPair = split(u.getIn());
-        ImplicitTreap<Vertex> beforeU = uPair.getFirst();
-        ImplicitTreap<Vertex> afterU = uPair.getSecond();
-        ImplicitTreap<Vertex> uNew = new ImplicitTreap<>(random.nextLong(), u);
-        afterU = updateAfterVertex(u, afterU, uNew);
-
-        u.setIn(uNew); // Обновить у вершины ссылку на ноду на случай если u -- первая вершина пути
-        beforeU = remove(beforeU, 0); // удалить первую вершину эйлеровго пути
-
-        // обновить ссылку на from у ребра между первой (удалённой) вершиной в пути на её последнее вхождение
-        if (fullSize(beforeU) > 1) {
-            ImplicitTreap<Vertex> lastInAfterU = getTreapByIndex(afterU, fullSize(afterU));
-            Vertex lastVertexInAfterU = lastInAfterU.getValue();
-            getValueByIndex(beforeU, 1).getEdgeTo(lastVertexInAfterU).setFromNode(lastInAfterU); // теперь не падает!!!
-
+        TreapEdge vTreapEdge = v.getRandomTreapEdge();
+        TreapEdge uTreapEdge = u.getRandomTreapEdge();
+        ImplicitTreap<TreapEdge> beforeVedge = null;
+        ImplicitTreap<TreapEdge> afterVedge = null;
+        ImplicitTreap<TreapEdge> beforeUedge = null;
+        ImplicitTreap<TreapEdge> afterUedge = null;
+        if (vTreapEdge != null) {
+            Pair<ImplicitTreap<TreapEdge>> pairV = updateParts(vTreapEdge);
+            beforeVedge = pairV.getFirst();
+            afterVedge = pairV.getSecond();
         }
 
-        addOrientedEdge(v, u);
-        v.getEdgeTo(u).setLinksToNodes(getTreapByIndex(beforeV, fullSize(beforeV)), uNew);  // uNew == new first in afterU (clone)
-        ImplicitTreap<Vertex> lastU= getTreapByIndex(beforeU, fullSize(beforeU));
-        u.getEdgeTo(v).setLinksToNodes(lastU == null ? getTreapByIndex(afterU, 1) : lastU, vNew);  // vNew == new first in afterV (clone)
+        if (uTreapEdge != null) {
+            Pair<ImplicitTreap<TreapEdge>> pairU = updateParts(uTreapEdge);
+            beforeUedge = pairU.getFirst();
+            afterUedge = pairU.getSecond();
+        }
 
-        ImplicitTreap<Vertex> vu = merge(beforeV, afterU);
-        ImplicitTreap<Vertex> uv = merge(beforeU, afterV);
-        return merge(vu, uv);
+        TreapEdge vu = v.addTreapEdge(u);
+        ImplicitTreap<TreapEdge> vuTreap = new ImplicitTreap<>(random.nextLong(), vu);
+        vu.setLink(vuTreap);
+        beforeVedge = merge(beforeVedge, vuTreap);
+        TreapEdge uv = u.addTreapEdge(v);
+        ImplicitTreap<TreapEdge> uvTreap = new ImplicitTreap<>(random.nextLong(), uv);
+        uv.setLink(uvTreap);
+        beforeUedge = merge(beforeUedge, uvTreap);
+
+        return merge(merge(beforeVedge, afterUedge), merge(beforeUedge, afterVedge));
+
     }
 
-    public static Pair<ImplicitTreap<Vertex>> cut(Vertex v, Vertex u) {
-        if (!v.hasEdge(u)) return null;
+    public static Pair<ImplicitTreap<TreapEdge>> cut(Vertex v, Vertex u) {
+        if (!v.hasTreapEdge(u)) return null;
 
-
-        ImplicitTreap<Vertex> vInVU = v.getEdgeTo(u).getFromNode();
-        ImplicitTreap<Vertex> uInUV = u.getEdgeTo(v).getFromNode();
-        if (findIndex(vInVU) > findIndex(uInUV)) {
-            return cut(u, v);
+        TreapEdge eFromV = v.getTreapEdgeTo(u);
+        TreapEdge eFromU = u.getTreapEdgeTo(v);
+        ImplicitTreap<TreapEdge> vu = eFromV.getLink();
+        ImplicitTreap<TreapEdge> uv = eFromU.getLink();
+        if (findIndex(vu) > findIndex(uv)) {
+            Vertex temp = v;
+            v = u;
+            u = temp;
+            ImplicitTreap<TreapEdge> tempTreap = vu;
+            vu = uv;
+            uv = tempTreap;
         }
 
-        ImplicitTreap<Vertex> part1 = split(vInVU).getFirst();
-        Pair<ImplicitTreap<Vertex>> other = split(uInUV);
-        ImplicitTreap<Vertex> part2 = other.getFirst();
-        ImplicitTreap<Vertex> part3 = other.getSecond();
+        ImplicitTreap<TreapEdge> part1 = split(vu).getFirst();
+        Pair<ImplicitTreap<TreapEdge>> other = split(uv);
+        ImplicitTreap<TreapEdge> part2 = other.getFirst();
+        ImplicitTreap<TreapEdge> part3 = other.getSecond();
 
-        v.setIn(vInVU);
-        part3 = remove(part3, 0);
-        if (fullSize(part3) > 0) {
-            v.getEdgeTo(getValueByIndex(part3, 1)).setFromNode(vInVU);
-        }
+        part1 = remove(part1, fullSize(part1) - 1);
+        part2 = remove(part2, fullSize(part2) - 1);
 
         removeOrientedEdge(v, u);
         return new Pair<>(merge(part1, part3), part2);
     }
 
     public static boolean areConnected(Vertex v, Vertex u) {
-        return getRoot(v.getIn()) == getRoot(u.getIn());
+        TreapEdge vTreapEdge = v.getRandomTreapEdge();
+        TreapEdge uTreapEdge = u.getRandomTreapEdge();
+        return !(vTreapEdge == null || uTreapEdge == null) && getRoot(vTreapEdge.getLink()) == getRoot(uTreapEdge.getLink());
     }
-
 }

@@ -1,65 +1,62 @@
 package ru.ifmo.ads.romashkina.graph;
 
-import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
+public class Edge implements Comparable<Edge> {
+    private final String from;
+    private final String to;
 
-public class Edge {
-    private Vertex from;
-    private Vertex to;
-    private ImplicitTreap<Vertex> fromNode;
-    private ImplicitTreap<Vertex> toNode;
-    private int level;
-
-    public Edge(Vertex from, Vertex to) {
-        this(from, to, null, null);
+    public Edge(String edge) {
+        String[] vertices = edge.split(" ");
+        from = vertices[0];
+        if (vertices.length > 1) {
+            to = vertices[1];
+        } else {
+            to = "";
+        }
     }
 
-    public Edge(Vertex from, Vertex to, ImplicitTreap<Vertex> fromNode, ImplicitTreap<Vertex> toNode) {
+    public Edge(String from, String to) {
         this.from = from;
         this.to = to;
-        this.level = 0;
-        setLinksToNodes(fromNode, toNode);
     }
 
-    public Vertex getFrom() {
+    public String getFrom() {
         return from;
     }
 
-    public void setFrom(Vertex from) {
-        this.from = from;
-    }
-
-    public Vertex getTo() {
+    public String getTo() {
         return to;
     }
 
-    public void setTo(Vertex to) {
-        this.to = to;
-    }
-
-    public ImplicitTreap<Vertex> getFromNode() {
-        return fromNode;
-    }
-
-    public void setFromNode(ImplicitTreap<Vertex> fromNode) {
-        this.fromNode = fromNode;
-    }
-
-    public ImplicitTreap<Vertex> getToNode() {
-        return toNode;
-    }
-
-    public void setToNode(ImplicitTreap<Vertex> toNode) {
-        this.toNode = toNode;
-    }
-
-    public void setLinksToNodes(ImplicitTreap<Vertex> fromNode, ImplicitTreap<Vertex> toNode) {
-        setFromNode(fromNode);
-        setToNode(toNode);
+    public Edge reverseEdge() {
+        return new Edge(to, from);
     }
 
     @Override
     public String toString() {
-        return "(" + from.getLabel() +
-                ", " + to.getLabel() + ')';
+        return '(' + from + ", " + to + ')';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Edge edge = (Edge) o;
+
+        if (!from.equals(edge.from)) return false;
+        return to.equals(edge.to);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = from.hashCode();
+        result = 31 * result + to.hashCode();
+        return result;
+    }
+
+    @Override
+    public int compareTo(Edge edge) {
+        int res = from.compareTo(edge.from);
+        return (res == 0) ? to.compareTo(edge.to) : res;
     }
 }

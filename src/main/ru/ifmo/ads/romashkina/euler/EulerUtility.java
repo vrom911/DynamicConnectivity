@@ -1,6 +1,6 @@
 package ru.ifmo.ads.romashkina.euler;
 
-import ru.ifmo.ads.romashkina.graph.Edge;
+import ru.ifmo.ads.romashkina.graph.TreapEdge;
 import ru.ifmo.ads.romashkina.graph.Graph;
 import ru.ifmo.ads.romashkina.graph.Vertex;
 import ru.ifmo.ads.romashkina.treap.ImplicitTreap;
@@ -35,10 +35,11 @@ public class EulerUtility {
         return graphs;
     }
 
-    public static ImplicitTreap<Vertex> findEulerPathForVertex(Vertex u, int vertexNum) {
+    public static ImplicitTreap<TreapEdge> findEulerPathForVertex(Vertex u, int vertexNum) {
         Deque<Vertex> tour = new ArrayDeque<>();
         tour.addLast(u);
-        List<ImplicitTreap<Vertex>> result = new ArrayList<>();
+        List<Vertex> resVertex = new ArrayList<>();
+        List<ImplicitTreap<TreapEdge>> result = new ArrayList<>();
         Map<Vertex, Integer> vNums = new HashMap<>();
         final int[] counter = new int[1];
         int[] edgeCounters = new int[vertexNum];
@@ -56,14 +57,14 @@ public class EulerUtility {
 
             if (w.equals(tour.peekLast())) {
                 tour.pollLast();
-                ImplicitTreap<Vertex> e = new ImplicitTreap<>(EulerTourTree.random.nextLong(), w);
-                result.add(e);
-                w.setIn(e);
+                resVertex.add(w);
 
-                int curResTreapsSize = result.size() - 1;
-                if (curResTreapsSize > 0) {
-                    Edge edge = result.get(curResTreapsSize - 1).getValue().getEdgeTo(w);
-                    edge.setLinksToNodes(result.get(curResTreapsSize - 1), e);
+                int curResVertexSize = resVertex.size() - 1;
+                if (curResVertexSize > 0) {
+                    TreapEdge treapEdge = resVertex.get(curResVertexSize - 1).getTreapEdgeTo(w);
+                    ImplicitTreap<TreapEdge> e = new ImplicitTreap<>(EulerTourTree.random.nextLong(), treapEdge);
+                    treapEdge.setLink(e);
+                    result.add(e);
                 }
             }
         }
@@ -74,7 +75,7 @@ public class EulerUtility {
     public static void findEulerPathForGraph(Graph graph) {
         int n = graph.getVertexNum();
         for (Vertex v : graph.getVertexMap().values()) {
-            if (v.getIn() != null) {
+            if (v.getRandomTreapEdge().getLink() == null) {
                 findEulerPathForVertex(v, n);
             }
         }
